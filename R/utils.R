@@ -88,11 +88,40 @@ is_normal <- function(data, formula, alpha = 0.05) {
 ## Equal to `outer(X = x1, Y = x1, FUN = function(x1, x2) paste(x1, x2, sep = " "))`
 ## applying the `paste` function to the two identical matrices
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-outer2 <- function(x, FUN = "paste"){
+outer2 <- function(x, FUN = "paste", drop = TRUE){
     res <- outer(x, x, FUN)
-    res <- res[upper.tri(res)]
+    if (drop) res <- res[upper.tri(res)]
     return(res)
 }
+
+
+# qDunnett <- function (p, df, k, rho,
+#                       type = c("two-sided", "one-sided"))
+# {
+#     type <- match.arg(type)
+#     alpha <- 1 - p
+#     if (type == "two-sided") {
+#         alpha <- alpha/2
+#     }
+#     S <- matrix(rho, nrow=k, ncol=k) + (1-rho)*diag(k)
+#     if (type == "two-sided") {
+#         f <- function(d, df, k, S, p) {
+#             mnormt::sadmvt(df=df, lower=rep(-d,k), upper=rep(d,k),
+#                            mean=rep(0,k), S=S, maxpts=2000*k) - p
+#         }
+#     }
+#     else {
+#         f <- function(d, df, k, S, p) {
+#             mnormt::pmt(d, S=S, df=df) - p
+#         }
+#     }
+#     d <- uniroot(f,
+#                  df = df, k = k, S = S, p=p,
+#                  lower=qt(1 - alpha, df),
+#                  upper=qt(1 - alpha/k, df),
+#                  tol=.Machine$double.eps, maxiter=5000)$root
+#     return(d)
+# }
 
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -111,7 +140,7 @@ estimate_cld_pos <- estimate_letter_pos
 # #> Plot a boxplot with compact letter display (cld)
 # #> The cld should be a named vector, for example, c(level_01 = "a", level_02 = "b")
 # show_boxplot <- function(
-#         data,
+        #         data,
 #         formula,
 #         cld = NULL,
 #         color = NULL,

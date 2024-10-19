@@ -10,3 +10,10 @@
 *.docx
 *.ppt
 *.pptx
+*.xls
+*.xlsx
+*.pdf
+*.tif
+*.tiff
+
+trial*
