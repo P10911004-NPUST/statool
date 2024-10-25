@@ -8,7 +8,7 @@ Dunn_test(
   data,
   formula,
   alpha = 0.05,
-  p_adjust_method = "none",
+  p_adjust_method = "holm",
   descending = TRUE
 )
 }

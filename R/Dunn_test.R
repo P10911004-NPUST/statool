@@ -17,7 +17,7 @@ Dunn_test <- function(
         data,
         formula,
         alpha = 0.05,
-        p_adjust_method = "none",
+        p_adjust_method = "holm",
         descending = TRUE
 ){
     p_adjust_method <- match.arg(p_adjust_method, stats::p.adjust.methods)
@@ -62,7 +62,7 @@ Dunn_test <- function(
     z_crit <- stats::qnorm(adjusted_alpha / 2, lower.tail = FALSE)
 
     group_pvals <- 2 * stats::pnorm(group_zvals, lower.tail = FALSE)
-    group_padjs <- group_pvals
+    group_padjs <- stats::p.adjust(group_pvals, method = p_adjust_method)
 
     group_diff_thresh <- z_crit * group_SEs
 

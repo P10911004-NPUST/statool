@@ -12,21 +12,21 @@ otsu_threshold <- function(x) {
 
     x_length <- length(raw_x)
 
-    MSE_v <- c()
+    SS_v <- c()  # Sum of Squares
     for (i in seq_along(raw_x)) {
         x1 <- raw_x[ 1 : i ]
         x2 <- raw_x[ i : x_length ]
 
-        MSE_x1 <- sum( (x1 - mean(x1)) ^ 2 ) / length(x1)
-        MSE_x2 <- sum( (x2 - mean(x2)) ^ 2 ) / length(x2)
+        SS_x1 <- sum( (x1 - mean(x1)) ^ 2 ) / length(x1)
+        SS_x2 <- sum( (x2 - mean(x2)) ^ 2 ) / length(x2)
 
-        MSE_v[i] <- MSE_x1 + MSE_x2
+        SS_v[i] <- SS_x1 + SS_x2
     }
 
-    MSE_v <- stats::setNames(MSE_v, as.character(raw_x))
+    SS_v <- stats::setNames(SS_v, as.character(raw_x))
 
-    threshold <- MSE_v[which.min(MSE_v)]
-    attr(threshold, "MSE") <- MSE_v
+    threshold <- SS_v[which.min(SS_v)]
+    attr(threshold, "SS") <- SS_v
 
     return(threshold)
 }
