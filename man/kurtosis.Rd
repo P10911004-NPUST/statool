@@ -4,18 +4,21 @@
 \alias{kurtosis}
 \title{Kurtosis of the sample / population distribution}
 \usage{
-kurtosis(x, .population = FALSE)
+kurtosis(x, excess_kurtosis = TRUE, .population = FALSE)
 }
 \arguments{
 \item{x}{A vector of numeric values. NA values will be discarded automatically.}
 
-\item{.population}{Calculate the kurtosis of the population or the sample.}
+\item{excess_kurtosis}{Logical (default: TRUE). Calculate the excess kurtosis (Ke); Ke = K - 3.}
+
+\item{.population}{Logical (default: FALSE). Calculate the kurtosis of the population or the sample.}
 }
 \value{
 Numeric value
 }
 \description{
 Return the kurtosis of the sample / population distribution.
+Normally distributed data has kurtosis around 3.0.
 }
 \examples{
 set.seed(1)

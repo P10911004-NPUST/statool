@@ -16,7 +16,7 @@ Numeric value
 }
 \description{
 Return the skewness of the sample / population distribution.
-The skewness value for a normal distribution should be close to zero.
+The skewness of a normal distribution approximately equal to zero.
 A negative skewness value indicates left-skewed distribution (concentrated on the right);
 A positive skewness value indicates right-skewed distribution (concentrated on the left).
 }
