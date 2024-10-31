@@ -5,20 +5,24 @@
 #' @param data A data frame in which the variables specified in the formula will be found.
 #' @param formula A formula specifying the model.
 #' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
-#' @param p_adjust_method A character string (default: "none"). Options please refer to `stats::p.adjust.methods`.
-#' @param descending Logical (default: TRUE). Sort the ranks in descending order.
+#' @param p_adjust_method Character string (default: "none"). Other options: `stats::p.adjust.methods`.
 #'
 #' @return A list with two vectors. \
 #' 1. result: consists of descriptive statistics and compact letter display;
 #' 2. comparisons: includes statistics parameters for each pairwise comparisons.
+#'
 #' @export
-
+#'
+#' @references
+#' Dunn, O.J., 1964.
+#' Multiple Comparisons Using Rank Sums.
+#' Technometrics 6, 241–252.
+#' https://doi.org/10.1080/00401706.1964.10490181
 Dunn_test <- function(
         data,
         formula,
         alpha = 0.05,
-        p_adjust_method = "holm",
-        descending = TRUE
+        p_adjust_method = "bonferroni"
 ){
     p_adjust_method <- match.arg(p_adjust_method, stats::p.adjust.methods)
     adjusted_alpha <- 1 - stats::p.adjust(1 - alpha, p_adjust_method)
@@ -36,7 +40,7 @@ Dunn_test <- function(
             FUN = function(fns) tapply(y, x, fns)
         )
     )
-    desc_mat <- desc_mat[order(desc_mat[, "mean"], decreasing = descending), ]
+    desc_mat <- desc_mat[order(desc_mat[, "mean"], decreasing = TRUE), ]
 
     group_means <- desc_mat[, "mean"]
     group_sizes <- desc_mat[, "length"]
@@ -73,7 +77,7 @@ Dunn_test <- function(
         comparisons = group_comparisons,
         pval = group_padjs,
         alpha = alpha,
-        descending = descending
+        descending = TRUE
     )
 
     # Output ====

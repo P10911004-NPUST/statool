@@ -2,7 +2,11 @@
 
 export(Anderson_Darling_test)
 export(Dunn_test)
+export(Fisher_LSD_test)
+export(Games_Howell_test)
 export(REGWQ_test)
+export(Tukey_HSD_test)
+export(Tukey_Kramer_test)
 export(compact_letter_display)
 export(kurtosis)
 export(skewness)

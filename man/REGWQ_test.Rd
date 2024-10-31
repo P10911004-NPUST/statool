@@ -4,13 +4,7 @@
 \alias{REGWQ_test}
 \title{Ryan, Einot, Gabriel, Welsh Studentized Range Q (REGWQ) test}
 \usage{
-REGWQ_test(
-  data,
-  formula,
-  alpha = 0.05,
-  p_adjust_method = "none",
-  descending = TRUE
-)
+REGWQ_test(data, formula, alpha = 0.05, p_adjust_method = "none")
 }
 \arguments{
 \item{data}{A data frame in which the variables specified in the formula will be found.}
@@ -20,8 +14,6 @@ REGWQ_test(
 \item{alpha}{Numeric value range from 0 to 1 (default: 0.05). The error tolerance.}
 
 \item{p_adjust_method}{A character string (default: "none"). Options please refer to \code{stats::p.adjust.methods}.}
-
-\item{descending}{Logical (default: TRUE). Sort the compact letter display in descending order.}
 }
 \value{
 A list with two vectors. \
@@ -59,4 +51,10 @@ stats_res[["result"]]["CLD"]
 #> m4     m4 8 71.875 13.47418 69.0  51  93  ab
 #> m1     m1 8 60.000 13.87701 53.5  48  84   b
 #> m5     m5 8 56.250 13.51983 57.5  37  76   b
+
+}
+\references{
+Howell, D.C. 2013.
+Statistical methods for psychology (8th ed.). pg. 393.
+Wadsworth Cengage Learning, Belmont, CA.
 }

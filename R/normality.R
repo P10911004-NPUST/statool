@@ -19,7 +19,7 @@
 #' x <- stats::rnorm(10, 10)
 #' skewness(x)
 #' #> 0.3512426
-skewness <- function(x, .population = FALSE){
+skewness <- function(x, .population = FALSE) {
     x <- x[stats::complete.cases(x)]
     N <- length(x)
     if (N < 3 || is.null(N)) stop("Sample size should be greater than 3")
@@ -52,7 +52,7 @@ skewness <- function(x, .population = FALSE){
 #' x <- stats::rnorm(10, 10)
 #' kurtosis(x)
 #' #> -0.3169031
-kurtosis <- function(x, .population = FALSE){
+kurtosis <- function(x, .population = FALSE) {
     x <- x[stats::complete.cases(x)]
     N <- length(x)
 
@@ -114,11 +114,11 @@ kurtosis <- function(x, .population = FALSE){
 #' #> $pval
 #' #> [1] 0.0050856
 #' @references
-#' D’Agostino, RalphB., 2017.
+#' D’Agostino, RalphB. 2017.
 #' Goodness-of-Fit Techniques.
 #' 1st ed. Routledge. pg. 127 (Table 4.9).
 #' https://doi.org/10.1201/9780203753064
-Anderson_Darling_test <- function(x){
+Anderson_Darling_test <- function(x) {
     x <- sort(x[stats::complete.cases(x)], decreasing = FALSE)
     N <- length(x)
 
@@ -129,7 +129,7 @@ Anderson_Darling_test <- function(x){
     left_tail <- stats::pnorm(z_score, log.p = TRUE)
     right_tail <- log(1 - stats::pnorm(rev(z_score)))
 
-    # AD: Anderson-Darling statistic
+    # AD: Anderson-Darling test statistic
     AD <- -N - mean( (2 * seq_along(x) - 1) * (left_tail + right_tail) )
     statistic <- AD
     AD <- AD * ( 1 + ( 0.75 / N ) + (2.25 / (N ^ 2)) )
@@ -162,17 +162,17 @@ Anderson_Darling_test <- function(x){
 }
 
 
-Cramer_von_Mises_test <- function(x){
+Cramer_von_Mises_test <- function(x) {
     cat("Not yet")
 }
 
 
-Kolmogoro_Smirnov_test <- function(x){
+Kolmogoro_Smirnov_test <- function(x) {
     cat("Not yet")
 }
 
 
-Lilliefors_test <- function(x){
+Lilliefors_test <- function(x) {
     cat("Not yet")
 }
 
@@ -182,22 +182,22 @@ Lilliefors_test <- function(x){
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Regression and Correlation tests ====
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-Shapiro_Wilk_test <- function(x){
+Shapiro_Wilk_test <- function(x) {
     cat("Not yet")
 }
 
 
-Shapiro_Wilk_Royston_test <- function(x){
+Shapiro_Wilk_Royston_test <- function(x) {
     cat("Not yet")
 }
 
 
-Shapiro_Francia_test <- function(x){
+Shapiro_Francia_test <- function(x) {
     cat("Not yet")
 }
 
 
-Ryan_Joiner_test <- function(x){
+Ryan_Joiner_test <- function(x) {
     cat("Not yet")
 }
 
@@ -207,12 +207,12 @@ Ryan_Joiner_test <- function(x){
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Moment tests ====
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-D.Angostino_Pearson_test <- function(x){
+D.Angostino_Pearson_test <- function(x) {
     cat("Not yet")
 }
 
 
-Jarque_Bera_test <- function(x){
+Jarque_Bera_test <- function(x) {
     cat("Not yet")
 }
 
@@ -222,6 +222,6 @@ Jarque_Bera_test <- function(x){
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Other tests ====
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-Pearson_chisquare_test <- function(x){
+Pearson_chisquare_test <- function(x) {
     cat("Not yet")
 }

@@ -42,7 +42,7 @@ Anderson_Darling_test(x)
 #> [1] 0.0050856
 }
 \references{
-D’Agostino, RalphB., 2017.
+D’Agostino, RalphB. 2017.
 Goodness-of-Fit Techniques.
 1st ed. Routledge. pg. 127 (Table 4.9).
 https://doi.org/10.1201/9780203753064

@@ -6,7 +6,6 @@
 #' @param formula A formula specifying the model.
 #' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
 #' @param p_adjust_method A character string (default: "none"). Options please refer to `stats::p.adjust.methods`.
-#' @param descending Logical (default: TRUE). Sort the compact letter display in descending order.
 #'
 #' @return A list with two vectors. \
 #' 1. result: consists of descriptive statistics and compact letter display;
@@ -39,12 +38,16 @@
 #' #> m4     m4 8 71.875 13.47418 69.0  51  93  ab
 #' #> m1     m1 8 60.000 13.87701 53.5  48  84   b
 #' #> m5     m5 8 56.250 13.51983 57.5  37  76   b
+#'
+#' @references
+#' Howell, D.C. 2013.
+#' Statistical methods for psychology (8th ed.). pg. 393.
+#' Wadsworth Cengage Learning, Belmont, CA.
 REGWQ_test <- function(
         data,
         formula,
         alpha = 0.05,
-        p_adjust_method = "none",
-        descending = TRUE
+        p_adjust_method = "none"
 ){
 
     p_adjust_method <- match.arg(p_adjust_method, choices = stats::p.adjust.methods)
@@ -225,7 +228,7 @@ REGWQ_test <- function(
         comparisons = group_comparisons,
         pval = group_padjs,
         alpha = alpha,
-        descending = descending
+        descending = TRUE
     )
 
     # Confidence interval ====

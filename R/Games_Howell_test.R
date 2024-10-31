@@ -1,15 +1,28 @@
-# Games-Howell test
-
-
-
+#' Games-Howell test
+#'
+#' Represent significance statements resulting from all-pairwise comparisons (when group variances are unequal).
+#'
+#' @param data A data frame in which the variables specified in the formula will be found.
+#' @param formula A formula specifying the model.
+#' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
+#' @param p_adjust_method A character string (default: "none"). Other options: `stats::p.adjust.methods`.
+#'
+#' @return A list with two vectors.
+#' 1. result: consists of descriptive statistics and compact letter display;
+#' 2. comparisons: includes statistics parameters for each pairwise comparisons.
+#'
+#' @export
+#'
+#' @references
+#' Howell, D.C. 2013.
+#' Statistical methods for psychology (8th ed.). pg. 393.
+#' Wadsworth Cengage Learning, Belmont, CA.
 Games_Howell_test <- function(
         data,
         formula,
         alpha = 0.05,
-        p_adjust_method = "none",
-        descending = TRUE
+        p_adjust_method = "none"
 ){
-    if (!isTRUE(descending) & !isFALSE(descending)) descending <- TRUE
     p_adjust_method <- match.arg(p_adjust_method, stats::p.adjust.methods)
 
     y_name <- as.character(formula)[2]
@@ -31,7 +44,7 @@ Games_Howell_test <- function(
         )
     )
 
-    desc_mat <- desc_mat[order(desc_mat[, "mean"], decreasing = descending), ]
+    desc_mat <- desc_mat[order(desc_mat[, "mean"], decreasing = TRUE), ]
 
     group_means <- desc_mat[, "mean"]
     group_sizes <- desc_mat[, "length"]
@@ -116,7 +129,7 @@ Games_Howell_test <- function(
         comparisons = group_comparisons,
         pval = group_padjs,
         alpha = alpha,
-        descending = descending
+        descending = TRUE
     )
 
     # Output ====
