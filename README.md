@@ -12,7 +12,7 @@ Please DO NOT fully trust these code, they have not been tested.
 You can install the development version of `statool` from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("pak")
+# if (!require(pak)) install.packages("pak")
 pak::pak("P10911004-NPUST/statool")
 ```
 

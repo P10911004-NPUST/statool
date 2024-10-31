@@ -1,8 +1,86 @@
 # Normality test ====
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-# Anderson-Darling ====
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+#' Skewness of the sample / population distribution
+#'
+#' Return the skewness of the sample / population distribution.
+#' The skewness value for a normal distribution should be close to zero.
+#' A negative skewness value indicates left-skewed distribution (concentrated on the right);
+#' A positive skewness value indicates right-skewed distribution (concentrated on the left).
+#'
+#' @param x A vector of numeric values. NA values will be discarded automatically.
+#' @param .population Calculate the skewness of the population or the sample.
+#'
+#' @return Numeric value
+#' @export
+#'
+#' @examples
+#' set.seed(1)
+#' x <- stats::rnorm(10, 10)
+#' skewness(x)
+#' #> 0.3512426
+skewness <- function(x, .population = FALSE){
+    x <- x[stats::complete.cases(x)]
+    N <- length(x)
+    if (N < 3 || is.null(N)) stop("Sample size should be greater than 3")
+
+    if (.population){
+        ret <- sum( ( (x - mean(x)) / sd_population(x) ) ^ 3 ) / N  # sd_population() <- utils.R
+    } else {
+        numerator <- N * sum( (x - mean(x)) ^ 3 )
+        denominator <- (N - 1) * (N - 2) * ( stats::sd(x) ^ 3 )
+        ret <- numerator / denominator
+    }
+
+    return(ret)
+}
+
+
+
+#' Kurtosis of the sample / population distribution
+#'
+#' Return the kurtosis of the sample / population distribution.
+#'
+#' @param x A vector of numeric values. NA values will be discarded automatically.
+#' @param .population Calculate the kurtosis of the population or the sample.
+#'
+#' @return Numeric value
+#' @export
+#'
+#' @examples
+#' set.seed(1)
+#' x <- stats::rnorm(10, 10)
+#' kurtosis(x)
+#' #> -0.3169031
+kurtosis <- function(x, .population = FALSE){
+    x <- x[stats::complete.cases(x)]
+    N <- length(x)
+
+    if (.population) {
+        ret <- sum( ( (x - mean(x)) / sd_population(x) ) ^ 4 ) / N
+    } else {
+        # Block A >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        numerator <- (N + 1) * N * sum( (x - mean(x)) ^ 4 )
+        denominator <- (N - 1) * (N - 2) * (N - 3) * ( stats::sd(x) ^ 4 )
+        block_A <- numerator / denominator
+
+        # Block B >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        numerator <- 3 * ( (N - 1) ^ 2 )
+        denominator <- (N - 2) * (N - 3)
+        block_B <- numerator / denominator
+
+        ret <- block_A - block_B
+    }
+
+    return(ret)
+}
+
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Empirical Distribution Function (EDF) tests ====
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 #' Anderson-Darling normality test
 #'
 #' Test the data normality (normal distribution)
@@ -72,7 +150,6 @@ Anderson_Darling_test <- function(x){
     if (AD >= 10)
         pval <- 9.9e-12
 
-
     is_normality <- pval > 0.05
 
     ret <- list(
@@ -86,57 +163,65 @@ Anderson_Darling_test <- function(x){
 
 
 Cramer_von_Mises_test <- function(x){
-    cat("")
-}
-
-
-D.Angostino_Pearson_test <- function(x){
-    cat("")
-}
-
-
-Shapiro_Francia_test <- function(x){
-    cat("")
-}
-
-
-Shapiro_Wilk_test <- function(x, method = "original"){
-    method <- tolower(method)
-    method <- match.arg(method, c("original", "royston"))
-}
-
-
-Jarque_Bera_test <- function(x){
-    cat("")
+    cat("Not yet")
 }
 
 
 Kolmogoro_Smirnov_test <- function(x){
-    cat("")
+    cat("Not yet")
 }
 
 
 Lilliefors_test <- function(x){
-    cat("")
+    cat("Not yet")
 }
 
 
-Pearson_chisquare_test <- function(x){
-    cat("")
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Regression and Correlation tests ====
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Shapiro_Wilk_test <- function(x){
+    cat("Not yet")
+}
+
+
+Shapiro_Wilk_Royston_test <- function(x){
+    cat("Not yet")
+}
+
+
+Shapiro_Francia_test <- function(x){
+    cat("Not yet")
 }
 
 
 Ryan_Joiner_test <- function(x){
-    cat("")
+    cat("Not yet")
 }
 
 
 
 
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Moment tests ====
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+D.Angostino_Pearson_test <- function(x){
+    cat("Not yet")
+}
+
+
+Jarque_Bera_test <- function(x){
+    cat("Not yet")
+}
 
 
 
 
-
-
-
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Other tests ====
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Pearson_chisquare_test <- function(x){
+    cat("Not yet")
+}

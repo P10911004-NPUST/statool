@@ -1,5 +1,14 @@
 
 
+sd_population <- function(x){
+    # Standard deviation of population
+    x <- x[stats::complete.cases(x)]
+    N <- length(x)
+    ret <- stats::sd(x) * sqrt( (N - 1) / N )
+    return(ret)
+}
+
+
 is_vector <- function(x){
     is.null(dim(x))
 }
