@@ -1,5 +1,18 @@
 
 
+#' Standard deviation of the population
+#'
+#' @param x A numeric vector
+#'
+#' @return
+#' standard deviation value for the population
+#'
+#' @export
+#'
+#' @examples
+#' set.seed(1)
+#' sd_population(rnorm(100))
+#' #> 0.8936971
 sd_population <- function(x){
     # Standard deviation of population
     x <- x[stats::complete.cases(x)]
@@ -9,8 +22,25 @@ sd_population <- function(x){
 }
 
 
+#' Check vector
+#'
+#' Check if an object is a vector.
+#'
+#' @param x An object
+#'
+#' @return
+#' Boolean value
+#'
+#' @export
+#'
+#' @examples
+#' is_vector(c(1, 2, 3))
+#' #> TRUE
+#'
+#' is_vector(list(a = c(1, 2, 3), b = c("a", "b", "c")))
+#' #> FALSE
 is_vector <- function(x){
-    is.null(dim(x))
+    is.null(dim(x)) & is.atomic(x)
 }
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

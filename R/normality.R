@@ -20,11 +20,11 @@
 #' skewness(x)
 #' #> 0.3512426
 skewness <- function(x, .population = FALSE) {
-    if (!is.null(dim(x)) || !is.numeric(x)) stop("x should be a numeric vector")
+    if ( !is_vector(x) || !is.numeric(x) ) stop("x should be a numeric vector")
 
     x <- x[stats::complete.cases(x)]
     N <- length(x)
-    if (N < 3 || is.null(N)) stop("Sample size should be greater than 3")
+    if (N < 3 || is.null(N)) stop("Sample size must be greater than 3")
 
     if (.population){
         ret <- sum( ( (x - mean(x)) / sd_population(x) ) ^ 3 ) / N  # sd_population() <- utils.R
@@ -57,11 +57,11 @@ skewness <- function(x, .population = FALSE) {
 #' kurtosis(x)
 #' #> -0.3169031
 kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
-    if (!is.null(dim(x)) || !is.numeric(x)) stop("x should be a numeric vector")
+    if ( !is_vector(x) || !is.numeric(x) ) stop("x should be a numeric vector")
 
     x <- x[stats::complete.cases(x)]
     N <- length(x)
-    if (N < 3 || is.null(N)) stop("Sample size should be greater than 3")
+    if (N < 3 || is.null(N)) stop("Sample size must be greater than 3")
 
     if (.population) {
         ret <- sum( ( (x - mean(x)) / sd_population(x) ) ^ 4 ) / N
@@ -79,7 +79,7 @@ kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
         ret <- block_A - block_B
     }
 
-    if (isFALSE(excess_kurtosis)) ret <- ret + 3
+    if ( isFALSE(excess_kurtosis) ) ret <- ret + 3
 
     return(ret)
 }
@@ -128,10 +128,12 @@ kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
 #' 1st ed. Routledge. pg. 127 (Table 4.9).
 #' https://doi.org/10.1201/9780203753064
 Anderson_Darling_test <- function(x) {
+    if ( !is_vector(x) || !is.numeric(x) ) stop("x should be a numeric vector")
+
     x <- sort(x[stats::complete.cases(x)], decreasing = FALSE)
     N <- length(x)
 
-    if (N < 8) stop("sample size must be greater than 7")
+    if ( N < 8 || is.null(N) ) stop("Sample size must be greater than 7")
 
     z_score <- (x - mean(x)) / stats::sd(x)
 
@@ -206,24 +208,97 @@ Shapiro_Francia_test <- function(x) {
 }
 
 
-Ryan_Joiner_test <- function(x) {
-    cat("Not yet")
+#' Ryan-Joiner normality test
+#'
+#' Test the data normality (normal distribution).
+#'
+#' @param x A numeric vector
+#' @param alpha The error tolerance, either 0.1, 0.05 (default), or 0.01.
+#'
+#' @return A list with three elements
+#' 1. is_normality: logical value. TRUE: x is normal distribution
+#' 2. statistic: the Ryan-Joiner test statistic (Rp) and its critical value (Rc).
+#' Rp > Rc accepts normality assumption.
+#' 3. pval: return an `NA`. the p-value of the statistics is currently not available.
+#'
+#' @export
+#'
+#' @examples
+#' set.seed(1)
+#' x <- stats::rnorm(100)  # This is normal distribution
+#' Ryan_Joiner_test(x)
+#' #> $is_normality
+#' #> [1] TRUE
+#' #> $statistic
+#' #>        Rp           Rc
+#' #> 0.9979065    0.9874371
+#' #> $pval
+#' #> [1] NA
+#'
+#' set.seed(1)
+#' x <- stats::runif(100, 1)  # This is non-normal distribution
+#' Ryan_Joiner_test(x)
+#' #> $is_normality
+#' #> [1] FALSE
+#' #> $statistic
+#' #>        Rp            Rc
+#' #>      -Inf     0.9874371
+#' #> $pval
+#' #> [1] NA
+#'
+#' @references
+#' Ryan T.A. and Joiner B.L. 1976.
+#' Normal probability plots and tests for normality.
+#' Technical Report.
+#' Statistics Department, The Pennsylvania State University.
+Ryan_Joiner_test <- function(x, alpha = 0.05) {
+    if ( !alpha %in% c(0.1, 0.05, 0.01) ) stop("`alpha` should be either 0.1, 0.05, 0.01")
+    if ( !is_vector(x) || !is.numeric(x) ) stop("`x` should be a numeric vector.")
+
+    x <- x[stats::complete.cases(x)]
+    x <- sort(x, decreasing = FALSE)
+    N <- length(x)
+    zero_index <- seq_along(x) - 1
+    ti <- (zero_index + 1 - 0.375) / (N + 0.25)
+    bi <- stats::qnorm(ti)
+
+    numerator <- sum(x * bi)
+    denominator <- sqrt( sum( (x - mean(x)) ^ 2 ) * sum(bi ^ 2) )
+    Rp <- numerator / denominator
+
+    # Critical value for Rp
+    if (alpha == 0.10) Rc <- c(b0 = 1.0071, b1 = -0.1271, b2 = -0.3682, b3 = 0.7780)
+    if (alpha == 0.05) Rc <- c(b0 = 1.0063, b1 = -0.1288, b2 = -0.6118, b3 = 1.3505)
+    if (alpha == 0.01) Rc <- c(b0 = 0.9963, b1 = -0.0211, b2 = -1.4106, b3 = 3.1791)
+
+    Rc <- unname(Rc)
+    Rc <- Rc[1] + (Rc[2] / sqrt(N)) + (Rc[3] / N) + (Rc[4] / (N ^ 2))
+
+    statistic <- c("Rp" = Rp, "Rc" = Rc)
+    is_normality <- Rp > Rc
+
+    ret <- list(
+        "is_normality" = is_normality,
+        "statistic" = statistic,
+        "pval" = NA
+    )
+
+    return(ret)
 }
-
-
 
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Moment tests ====
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-D.Angostino_Pearson_test <- function(x) {
+D.Agostino_Pearson_test <- function(x) {
     cat("Not yet")
 }
 
 
 #' Jarque-Bera normality test
 #'
-#' Test the data normality (normal distribution)
+#' Test the data normality (normal distribution).
+#' Insensitive to uniform distribution. Not recommended.
 #'
 #' @param x A numeric vector
 #'
@@ -232,6 +307,7 @@ D.Angostino_Pearson_test <- function(x) {
 #' 2. statistic: the Jarque-Bera test statistic value.
 #' The higher the value, the lower the probability of normality.
 #' 3. pval: the p-value of the statistics. pval >= 0.05 indicates normal distribution.
+#'
 #' @export
 #'
 #' @examples
@@ -254,16 +330,17 @@ D.Angostino_Pearson_test <- function(x) {
 #' #> [1] 615.3756
 #' #> $pval
 #' #> [1] 2.359915e-134
+#'
 #' @references
 #' Jarque, C.M. and Bera, A.K. 1980.
 #' Efficient tests for normality, homoscedasticity and serial independence of regression residuals.
 #' Economics letters, 6(3), 255-259.
 Jarque_Bera_test <- function(x) {
-    if (!is.null(dim(x)) || !is.numeric(x)) stop("x should be a numeric vector")
+    if ( !is_vector(x) || !is.numeric(x) ) stop("x should be a numeric vector")
 
     x <- x[stats::complete.cases(x)]
     N <- length(x)
-    if (N < 3 || is.null(N)) stop("Sample size should be greater than 3")
+    if ( N < 3 || is.null(N) ) stop("Sample size must be greater than 3")
 
     skew <- skewness(x)
     Ke <- kurtosis(x, excess_kurtosis = TRUE)

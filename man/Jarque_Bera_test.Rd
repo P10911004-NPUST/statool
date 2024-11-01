@@ -19,7 +19,8 @@ The higher the value, the lower the probability of normality.
 }
 }
 \description{
-Test the data normality (normal distribution)
+Test the data normality (normal distribution).
+Insensitive to uniform distribution. Not recommended.
 }
 \examples{
 set.seed(1)
@@ -41,6 +42,7 @@ Jarque_Bera_test(x)
 #> [1] 615.3756
 #> $pval
 #> [1] 2.359915e-134
+
 }
 \references{
 Jarque, C.M. and Bera, A.K. 1980.
