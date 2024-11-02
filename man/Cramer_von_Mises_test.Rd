@@ -64,6 +64,9 @@ Thode Jr., H.C. 2002.
 Testing for  Normality.
 Marcel Dekker, New York.
 }
+\seealso{
+\code{\link[nortest:cvm.test]{nortest::cvm.test()}}
+}
 \author{
 Joon-Keat Lai
 }

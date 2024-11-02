@@ -132,7 +132,7 @@ kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
 #' #> $pval
 #' #> [1] 0.9470751
 #'
-#' #' x <- stats::runif(100)  # This is non-normal distribution
+#' x <- stats::runif(100)  # This is non-normal distribution
 #' Anderson_Darling_test(x)
 #' #> $is_normality
 #' #> [1] FALSE
@@ -146,6 +146,8 @@ kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
 #' Goodness-of-Fit Techniques.
 #' 1st ed. Routledge. pg. 127 (Table 4.9).
 #' https://doi.org/10.1201/9780203753064
+#'
+#' @seealso [nortest::ad.test()]
 Anderson_Darling_test <- function(x) {
     if ( !is_vector(x) || !is.numeric(x) ) stop("x should be a numeric vector")
 
@@ -249,6 +251,8 @@ Anderson_Darling_test <- function(x) {
 #' Thode Jr., H.C. 2002.
 #' Testing for  Normality.
 #' Marcel Dekker, New York.
+#'
+#' @seealso [nortest::cvm.test()]
 Cramer_von_Mises_test <- function(x) {
     x <- sort(x[stats::complete.cases(x)])
     N <- length(x)
@@ -294,13 +298,116 @@ Cramer_von_Mises_test <- function(x) {
 }
 
 
+
 Kolmogoro_Smirnov_test <- function(x) {
     cat("Not yet")
 }
 
 
+
+#' Lilliefors normality test
+#'
+#' The Lilliefors test, which is a modified version of the Kolmogoro-Smirnov test,
+#' is an empirical distribution function (EDF) omnibus test for the hypothesis of
+#' normality.
+#'
+#' @param x A numeric vector
+#'
+#' @return A list with three elements:
+#' 1. is_normality: logical value. TRUE indicates x is a normal distribution.
+#' 2. statistic: the Lilliefors test statistic value (D).
+#' The higher the value, the lower the probability of normality.
+#' 3. pval: the p-value for the test. pval > 0.05 indicates normal distribution.
+#'
+#' @export
+#' @author Joon-Keat Lai
+#'
+#' @examples
+#' set.seed(1)
+#' x <- stats::rnorm(100)  # This is normal distribution
+#' Lilliefors_test(x)
+#' #> $is_normality
+#' #> [1] TRUE
+#' #> $statistic
+#' #>          D
+#' #> 0.04701381
+#' #> $pval
+#' #> [1] 0.8479244
+#'
+#' x <- stats::runif(100)  # This is non-normal distribution
+#' Lilliefors_test(x)
+#' #> $is_normality
+#' #> [1] FALSE
+#' #> $statistic
+#' #>          D
+#' #> 0.1007912
+#' #> $pval
+#' #> [1] 0.01400096
+#'
+#' @references
+#' Dallal G.E. and Wilkinson L. 1986.
+#' An analytic approximation to the distribution of Lilliefors' test for normality.
+#' The American Statistician. 40:294-296.
+#'
+#' @seealso [nortest::lillie.test()]
 Lilliefors_test <- function(x) {
-    cat("Not yet")
+    x <- sort(x[stats::complete.cases(x)])
+    n <- length(x)
+    i <- seq_along(x)
+
+    if (n <= 4) stop("sample size must be greater than 4")
+
+    z <- (x - mean(x))/stats::sd(x)
+    p <- stats::pnorm(z)
+    Dplus <- max((i / n) - p)
+    Dminus <- max( p - ((i - 1) / n) )
+
+    K <- max(Dplus, Dminus)
+    statistic <- c("D" = K)
+
+    if (n <= 100) {
+        Kd <- K
+        nd <- n
+    } else {
+        Kd <- K * ((n / 100) ^ 0.49)
+        nd <- 100
+    }
+
+    pvalue <- exp(-7.01256 * Kd^2 * (nd + 2.78019) + 2.99587 *
+                      Kd * sqrt(nd + 2.78019) - 0.122119 + 0.974598/sqrt(nd) +
+                      1.67997 / nd)
+
+    if (pvalue > 0.1) {
+        KK <- (sqrt(n) - 0.01 + 0.85 / sqrt(n)) * K
+        if (KK <= 0.302) {
+            pvalue <- 1
+        }
+        else if (KK <= 0.5) {
+            pvalue <- 2.76773 - 19.828315 * KK + 80.709644 *
+                KK^2 - 138.55152 * KK^3 + 81.218052 * KK^4
+        }
+        else if (KK <= 0.9) {
+            pvalue <- -4.901232 + 40.662806 * KK - 97.490286 *
+                KK^2 + 94.029866 * KK^3 - 32.355711 * KK^4
+        }
+        else if (KK <= 1.31) {
+            pvalue <- 6.198765 - 19.558097 * KK + 23.186922 *
+                KK^2 - 12.234627 * KK^3 + 2.423045 * KK^4
+        }
+        else {
+            pvalue <- 0
+        }
+    }
+
+    is_normality <- pvalue >= 0.05
+
+    ret <- list(
+        "is_normality" = is_normality,
+        "statistic" = statistic,
+        "pval" = pvalue
+    )
+
+    return(ret)
 }
 
 
@@ -368,6 +475,8 @@ Shapiro_Wilk_Royston_test <- function(x) {
 #' Thode Jr., H.C. 2002.
 #' Testing for  Normality.
 #' Marcel Dekker, New York.
+#'
+#' @seealso [nortest::sf.test()]
 Shapiro_Francia_test <- function(x) {
     x <- sort(x[stats::complete.cases(x)], decreasing = FALSE)
     N <- length(x)

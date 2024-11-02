@@ -43,7 +43,7 @@ Anderson_Darling_test(x)
 #> $pval
 #> [1] 0.9470751
 
-#' x <- stats::runif(100)  # This is non-normal distribution
+x <- stats::runif(100)  # This is non-normal distribution
 Anderson_Darling_test(x)
 #> $is_normality
 #> [1] FALSE
@@ -58,6 +58,9 @@ D’Agostino, R.B. 2017.
 Goodness-of-Fit Techniques.
 1st ed. Routledge. pg. 127 (Table 4.9).
 https://doi.org/10.1201/9780203753064
+}
+\seealso{
+\code{\link[nortest:ad.test]{nortest::ad.test()}}
 }
 \author{
 Joon-Keat Lai
