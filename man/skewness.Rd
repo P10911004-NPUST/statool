@@ -26,3 +26,6 @@ x <- stats::rnorm(10, 10)
 skewness(x)
 #> 0.3512426
 }
+\author{
+Joon-Keat Lai
+}

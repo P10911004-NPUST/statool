@@ -15,7 +15,9 @@
 #' @importFrom stats TukeyHSD
 #'
 #' @return A character named-vector
+#'
 #' @export
+#' @author Joon-Keat Lai
 #'
 #' @examples
 #' utils::data("iris", package = "datasets")

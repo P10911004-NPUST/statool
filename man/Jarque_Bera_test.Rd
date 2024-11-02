@@ -49,3 +49,6 @@ Jarque, C.M. and Bera, A.K. 1980.
 Efficient tests for normality, homoscedasticity and serial independence of regression residuals.
 Economics letters, 6(3), 255-259.
 }
+\author{
+Joon-Keat Lai
+}

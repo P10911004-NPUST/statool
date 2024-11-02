@@ -53,3 +53,6 @@ Normal probability plots and tests for normality.
 Technical Report.
 Statistics Department, The Pennsylvania State University.
 }
+\author{
+Joon-Keat Lai
+}

@@ -10,7 +10,9 @@
 #' @return A list with two vectors. \
 #' 1. result: consists of descriptive statistics and compact letter display;
 #' 2. comparisons: includes statistics parameters for each pairwise comparisons.
+#'
 #' @export
+#' @author Joon-Keat Lai
 #'
 #' @examples
 #' rawdata <- data.frame(

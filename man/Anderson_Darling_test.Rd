@@ -10,16 +10,27 @@ Anderson_Darling_test(x)
 \item{x}{A numeric vector}
 }
 \value{
-A list with three elements
+A list with three elements:
 \enumerate{
-\item is_normality: logical value. TRUE: x is normal distribution
+\item is_normality: logical value. TRUE indicates x is a normal distribution.
 \item statistic: the Anderson-Darling test statistic value.
 The higher the value, the lower the probability of normality.
-\item pval: the p-value of the statistics. pval > 0.05 indicates normal distribution.
+\item pval: the p-value for the test. pval > 0.05 indicates normal distribution.
 }
 }
 \description{
-Test the data normality (normal distribution)
+The Anderson-Darling test is an empirical distribution function (EDF) omnibus test
+for the hypothesis of normality. The test statistic is
+\deqn{
+A = -n -\frac{1}{n} \sum_{i=1}^{n} [2i-1]
+[\ln(p_{(i)}) + \ln(1 - p_{(n-i+1)})],
+}
+where
+\eqn{p_{(i)} = \Phi([x_{(i)} - \overline{x}]/s)}.
+\eqn{\Phi} is the cumulative distribution function of the standard normal distribution;
+\eqn{\overline{x}} and \eqn{s} are mean and standard deviation of the data values.
+The p-value is computed from the modified statistic
+\eqn{Z=A (1.0 + 0.75/n +2.25/n^{2})} according to the Table 4.9 in D’Agostino (2017).
 }
 \examples{
 set.seed(1)
@@ -40,10 +51,14 @@ Anderson_Darling_test(x)
 #> [1] 1.14719
 #> $pval
 #> [1] 0.0050856
+
 }
 \references{
-D’Agostino, RalphB. 2017.
+D’Agostino, R.B. 2017.
 Goodness-of-Fit Techniques.
 1st ed. Routledge. pg. 127 (Table 4.9).
 https://doi.org/10.1201/9780203753064
+}
+\author{
+Joon-Keat Lai
 }

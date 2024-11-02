@@ -30,3 +30,6 @@ Howell, D.C. 2013.
 Statistical methods for psychology (8th ed.). pg. 393.
 Wadsworth Cengage Learning, Belmont, CA.
 }
+\author{
+Joon-Keat Lai
+}

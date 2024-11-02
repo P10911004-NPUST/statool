@@ -35,3 +35,6 @@ Comparing Individual Means in the Analysis of Variance.
 Biometrics, vol. 5, no. 2, pp. 99-114. JSTOR.
 https://doi.org/10.2307/3001913.
 }
+\author{
+Joon-Keat Lai
+}

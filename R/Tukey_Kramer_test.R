@@ -12,6 +12,7 @@
 #' 2. comparisons: includes statistics parameters for each pairwise comparisons.
 #'
 #' @export
+#' @author Joon-Keat Lai
 #'
 #' @references
 #' Howell, D.C. 2013.

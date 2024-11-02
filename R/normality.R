@@ -12,7 +12,9 @@
 #' @param .population Calculate the skewness of the population or the sample.
 #'
 #' @return Numeric value
+#'
 #' @export
+#' @author Joon-Keat Lai
 #'
 #' @examples
 #' set.seed(1)
@@ -49,7 +51,9 @@ skewness <- function(x, .population = FALSE) {
 #' @param .population Logical (default: FALSE). Calculate the kurtosis of the population or the sample.
 #'
 #' @return Numeric value
+#'
 #' @export
+#' @author Joon-Keat Lai
 #'
 #' @examples
 #' set.seed(1)
@@ -90,18 +94,32 @@ kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
 # Empirical Distribution Function (EDF) tests ====
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+
 #' Anderson-Darling normality test
 #'
-#' Test the data normality (normal distribution)
+#' The Anderson-Darling test is an empirical distribution function (EDF) omnibus test
+#' for the hypothesis of normality. The test statistic is
+#' \deqn{
+#' A = -n -\frac{1}{n} \sum_{i=1}^{n} [2i-1]
+#' [\ln(p_{(i)}) + \ln(1 - p_{(n-i+1)})],
+#' }
+#' where
+#' \eqn{p_{(i)} = \Phi([x_{(i)} - \overline{x}]/s)}.
+#' \eqn{\Phi} is the cumulative distribution function of the standard normal distribution;
+#' \eqn{\overline{x}} and \eqn{s} are mean and standard deviation of the data values.
+#' The p-value is computed from the modified statistic
+#' \eqn{Z=A (1.0 + 0.75/n +2.25/n^{2})} according to the Table 4.9 in D’Agostino (2017).
 #'
 #' @param x A numeric vector
 #'
-#' @return A list with three elements
-#' 1. is_normality: logical value. TRUE: x is normal distribution
+#' @return A list with three elements:
+#' 1. is_normality: logical value. TRUE indicates x is a normal distribution.
 #' 2. statistic: the Anderson-Darling test statistic value.
 #' The higher the value, the lower the probability of normality.
-#' 3. pval: the p-value of the statistics. pval > 0.05 indicates normal distribution.
+#' 3. pval: the p-value for the test. pval > 0.05 indicates normal distribution.
+#'
 #' @export
+#' @author Joon-Keat Lai
 #'
 #' @examples
 #' set.seed(1)
@@ -122,8 +140,9 @@ kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
 #' #> [1] 1.14719
 #' #> $pval
 #' #> [1] 0.0050856
+#'
 #' @references
-#' D’Agostino, RalphB. 2017.
+#' D’Agostino, R.B. 2017.
 #' Goodness-of-Fit Techniques.
 #' 1st ed. Routledge. pg. 127 (Table 4.9).
 #' https://doi.org/10.1201/9780203753064
@@ -173,8 +192,105 @@ Anderson_Darling_test <- function(x) {
 }
 
 
+
+#' Cramer-von Mises normality test
+#'
+#' The Cramer-von Mises test is an empirical distribution function (EDF) omnibus test
+#' for the hypothesis of normality. The test statistic is
+#' \deqn{
+#' W = \frac{1}{12 n} + \sum_{i=1}^{n} \left(p_{(i)} - \frac{2i-1}{2n}\right)^2,
+#' }{W = 1/(12n)  +  \sum_{i=1}^n (p_(i) - (2i-1)/(2n))^2,} \
+#' where \eqn{p_{(i)} = \Phi([x_{(i)} - \overline{x}]/s)},
+#' \eqn{\Phi} is the cumulative distribution function of the standard normal distribution,
+#' \eqn{\overline{x}} and \eqn{s} are the mean and standard deviation.
+#' The p-value is computed from the modified statistic \eqn{Z = W (1.0 + 0.5/n)}
+#' according to Table 4.9 in Stephens (1986).
+#'
+#' @param x A numeric vector
+#'
+#' @return A list with three elements:
+#' 1. is_normality: logical value. TRUE indicates x is a normal distribution.
+#' 2. statistic: the Cramer-von Mises test statistic value (W).
+#' The higher the value, the lower the probability of normality.
+#' 3. pval: the p-value for the test. pval > 0.05 indicates normal distribution.
+#'
+#' @export
+#' @author Joon-Keat Lai
+#'
+#' @examples
+#' set.seed(1)
+#' x <- stats::rnorm(100)  # This is normal distribution
+#' Cramer_von_Mises_test(x)
+#' #> $is_normality
+#' #> [1] TRUE
+#' #> $statistic
+#' #>         W
+#' #> 0.0260313
+#' #> $pval
+#' #> [1] 0.8945191
+#'
+#' x <- stats::runif(100)  # This is non-normal distribution
+#' Cramer_von_Mises_test(x)
+#' #> $is_normality
+#' #> [1] FALSE
+#' #> $statistic
+#' #>         W
+#' #> 0.2746561
+#' #> $pval
+#' #> [1] 0.0006342302
+#'
+#' @references
+#' Stephens, M.A. 1986.
+#' Tests based on EDF statistics.
+#' Eds.: D'Agostino, R.B. and Stephens, M.A.
+#' Goodness-of-Fit Techniques.
+#' Marcel Dekker, New York.
+#'
+#' Thode Jr., H.C. 2002.
+#' Testing for  Normality.
+#' Marcel Dekker, New York.
 Cramer_von_Mises_test <- function(x) {
-    cat("Not yet")
+    x <- sort(x[stats::complete.cases(x)])
+    N <- length(x)
+    i <- seq_along(x)
+
+    if (N <= 7) stop("sample size must be greater than 7")
+
+    z <- (x - mean(x)) / stats::sd(x)
+    p <- stats::pnorm(z)
+
+    block_A <- 1 / (12 * N)
+    block_B <- (2 * i - 1) / (2 * N)
+
+    W <- block_A + sum( (p - block_B) ^ 2 )
+    statistic <- c("W" = W)
+
+    W <- (1 + 0.5 / N) * W
+
+    if (W >= 1.1)
+        pval <- 9.9e-10
+
+    if (W < 1.1 && W >= 0.092)
+        pval <- exp(1.111 - 34.242 * W + 12.832 * W ^ 2)
+
+    if (W < 0.092 && W >= 0.051)
+        pval <- exp(0.886 - 31.62 * W + 10.897 * W ^ 2)
+
+    if (W < 0.051 && W >= 0.0275)
+        pval <- 1 - exp(-5.903 + 179.546 * W - 1515.29 * W ^ 2)
+
+    if (W < 0.0275)
+        pval <- 1 - exp(-13.953 + 775.5 * W - 12542.61 * W ^ 2)
+
+    is_normality <- pval >= 0.05
+
+    ret <- list(
+        "is_normality" = is_normality,
+        "statistic" = statistic,
+        "pval" = pval
+    )
+
+    return(ret)
 }
 
 
@@ -203,9 +319,83 @@ Shapiro_Wilk_Royston_test <- function(x) {
 }
 
 
+
+#' Shapiro-Francia normality test
+#'
+#' The Shapiro-Francia test is a type of regression and correlation test for normality
+#' evaluation. It estimates the squared correlation between the ordered sample values
+#' and the approximate expected ordered quantiles from the standard normal distribution.
+#' The p-value is computed from the formula given by Royston (1993).
+#'
+#' @param x A numeric vector
+#'
+#' @return A list with three elements:
+#' 1. is_normality: logical value. TRUE indicates x is a normal distribution.
+#' 2. statistic: the Shapiro-Francia test statistic value (W).
+#' The higher the value, the lower the probability of normality.
+#' 3. pval: the p-value for the test. pval > 0.05 indicates normal distribution.
+#'
+#' @export
+#' @author Joon-Keat Lai
+#'
+#' @examples
+#' set.seed(1)
+#' x <- stats::rnorm(100)  # This is normal distribution
+#' Shapiro_Francia_test(x)
+#' #> $is_normality
+#' #> [1] TRUE
+#' #> $statistic
+#' #>         W
+#' #> 0.9958174
+#' #> $pval
+#' #> [1] 0.9718829
+#'
+#' x <- stats::runif(100)  # This is non-normal distribution
+#' Shapiro_Francia_test(x)
+#' #> $is_normality
+#' #> [1] FALSE
+#' #> $statistic
+#' #>         W
+#' #> 0.9386237
+#' #> $pval
+#' #> [1] 0.0003371829
+#'
+#' @references
+#' Royston, P. 1993.
+#' A pocket-calculator algorithm for the Shapiro-Francia test for non-normality: an application to medicine.
+#' Statistics in Medicine. 12, 181-184.
+#'
+#' Thode Jr., H.C. 2002.
+#' Testing for  Normality.
+#' Marcel Dekker, New York.
 Shapiro_Francia_test <- function(x) {
-    cat("Not yet")
+    x <- sort(x[stats::complete.cases(x)], decreasing = FALSE)
+    N <- length(x)
+
+    if ( N < 5 || N > 5000 ) stop("sample size must be between 5 and 5000")
+
+    y <- stats::qnorm( stats::ppoints( N, a = (3 / 8) ) )
+    W <- stats::cor(x, y) ^ 2
+    u <- log(N)
+    v <- log(u)
+    mu <- (1.0521 * (v - u)) - 1.2725
+    sig <- 1.0308 - 0.26758 * (v + 2 / u)
+
+    z <- ( log(1 - W) - mu ) / sig
+
+    pval <- stats::pnorm(z, lower.tail = FALSE)
+
+    is_normality <- pval >= 0.05
+
+    ret <- list(
+        "is_normality" = is_normality,
+        "statistic" = c("W" = W),
+        "pval" = pval
+    )
+
+    return(ret)
 }
+
 
 
 #' Ryan-Joiner normality test
@@ -222,6 +412,7 @@ Shapiro_Francia_test <- function(x) {
 #' 3. pval: return an `NA`. the p-value of the statistics is currently not available.
 #'
 #' @export
+#' @author Joon-Keat Lai
 #'
 #' @examples
 #' set.seed(1)
@@ -295,6 +486,7 @@ D.Agostino_Pearson_test <- function(x) {
 }
 
 
+
 #' Jarque-Bera normality test
 #'
 #' Test the data normality (normal distribution).
@@ -309,6 +501,7 @@ D.Agostino_Pearson_test <- function(x) {
 #' 3. pval: the p-value of the statistics. pval >= 0.05 indicates normal distribution.
 #'
 #' @export
+#' @author Joon-Keat Lai
 #'
 #' @examples
 #' set.seed(1)

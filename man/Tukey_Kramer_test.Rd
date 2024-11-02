@@ -35,3 +35,6 @@ Extension of Multiple Range Tests to Group Means with Unequal Numbers of Replica
 Biometrics, vol. 12, no. 3, pp. 307-310. JSTOR.
 https://doi.org/10.2307/3001469.
 }
+\author{
+Joon-Keat Lai
+}

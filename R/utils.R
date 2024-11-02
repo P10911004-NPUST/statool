@@ -172,13 +172,11 @@ outer2 <- function(x, FUN = "paste", drop = TRUE){
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ## Estimate the compact letter display (CLD) position to show on the plot
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-estimate_letter_pos <- function(x){
+estimate_cld_pos <- estimate_letter_pos <- function(x){
     MAX <- max(x)
     letter_pos <- MAX + ((ceiling(max(MAX) * 1.15) - max(MAX)) * 0.43)
     return(letter_pos)
 }
-
-estimate_cld_pos <- estimate_letter_pos
 
 
 # #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

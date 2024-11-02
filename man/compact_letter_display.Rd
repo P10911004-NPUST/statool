@@ -59,3 +59,6 @@ An Algorithm for a Letter-Based Representation of All-Pairwise Comparisons.
 Journal of Computational and Graphical Statistics 13, 456–466.
 https://doi.org/10.1198/1061860043515
 }
+\author{
+Joon-Keat Lai
+}

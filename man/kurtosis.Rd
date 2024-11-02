@@ -26,3 +26,6 @@ x <- stats::rnorm(10, 10)
 kurtosis(x)
 #> -0.3169031
 }
+\author{
+Joon-Keat Lai
+}
