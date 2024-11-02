@@ -5,7 +5,6 @@
 <!-- badges: end -->
 
 `statool` is still under active development.  
-Please DO NOT fully trust these code, they have not been tested.
 
 ## Installation
 

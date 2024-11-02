@@ -11,6 +11,7 @@
 #' @param display_symbols Default: c("a", "b", "c", ...)
 #' @param descending Default: TRUE
 #'
+#' @import datasets
 #' @importFrom utils data
 #' @importFrom stats TukeyHSD
 #'
