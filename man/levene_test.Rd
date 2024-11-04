@@ -27,12 +27,14 @@ Computes Levene's test for homogeneity of variance across groups (homoscedastici
 \examples{
 utils::data("iris", package = "datasets")
 levene_test(iris, Petal.Length ~ Species)
+
 #> $is_var_equal
 #> [1] FALSE
-#> $statistic
-#> Analysis of Variance Table
 #>
-#> Response: diff
+#> $statistic
+#> Analysis of Variance Table (trim_mean)
+#>
+#> Response: abs(x - trim_mean)
 #>            Df Sum Sq Mean Sq F value    Pr(>F)
 #> x           2 2.6526 1.32629  20.045 2.005e-08 ***
 #> Residuals 147 9.7265 0.06617
