@@ -150,7 +150,8 @@ robust_scaling <- function(x){
 
 
 unit_vector_scaling <- function(x, method = "Lp"){
-    method <- match.arg(method, c("L1", "L2", "Lp"))
+    method <- toupper(method)
+    method <- match.arg(method, c("L1", "L2", "LP"))
     if (!is.vector(x))
         stop("Input `x` should be a numeric vector.\n")
     if (length(x) < 5)
@@ -158,7 +159,16 @@ unit_vector_scaling <- function(x, method = "Lp"){
 
     x <- x[stats::complete.cases(x)]
 
-    cat("Not yet")
+    if (method == "L1")
+        ret <- x / sum(abs(x))
+
+    if (method == "L2")
+        ret <- x / sqrt(sum(x ^ 2))
+
+    if (method == "LP")
+        cat("Not yet")
+
+    return(ret)
 }
 
 
