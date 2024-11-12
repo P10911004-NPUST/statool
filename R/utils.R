@@ -43,6 +43,10 @@ is_vector <- function(x){
     is.null(dim(x)) & is.atomic(x)
 }
 
+is_not_vector <- function(x){
+    !is.null(dim(x)) & !is.atomic(x)
+}
+
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ## Check if sample sizes are not equal
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -177,6 +181,55 @@ estimate_cld_pos <- estimate_letter_pos <- function(x){
     letter_pos <- MAX + ((ceiling(max(MAX) * 1.15) - max(MAX)) * 0.43)
     return(letter_pos)
 }
+
+
+
+search_sorted <- function(x, insertion, side = "left", descending = FALSE){
+    if (is_not_vector(x)) stop("Input `x` should be a vector")
+    if (is_not_vector(insertion)) stop("`insertion` should be a vector")
+
+    side <- match.arg(side, c("left", "right"))
+    x <- sort(x, decreasing = descending)
+
+    .get_ind <- function(x, insertion, side, descending){
+        ind <- which(x == insertion)
+        if (insertion < min(x)) return(1)
+        if (insertion > max(x)) return(length(x) + 1)
+        if (side == "left") return (min(ind))
+        if (side == "right") return (max(ind))
+        return(ind)
+    }
+
+    ret <- sapply(
+        X = insertion,
+        FUN = function(i) .get_ind(x = x, insertion = i, side = side, descending = descending)
+    )
+
+    return(ret)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
