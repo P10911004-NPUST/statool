@@ -131,6 +131,20 @@ is_normal <- function(data, formula, alpha = 0.05) {
 }
 
 
+dataframe_to_list <- function(data, formula){
+    if (!is.data.frame(data)) stop("Input `data` should be a dataframe")
+
+    df0 <- stats::model.frame(formula = formula, data = data)
+    colnames(df0) <- c("y", "x")
+
+    group_names <- unique(df0$x)
+
+    lst <- list()
+    for (g in group_names){
+        lst[[g]] <- subset(df0, x == g, y, drop = TRUE)
+    }
+    return(lst)
+}
 
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
