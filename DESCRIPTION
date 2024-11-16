@@ -1,0 +1,14 @@
+Package: statool
+Title: Statistical tool
+Version: 0.0.0.9000
+Authors@R: 
+    person("Joon-Keat", "Lai", , "p10911004@gmail.com", role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0000-0002-9840-5836"))
+Description: Some handy functions for statistical analysis.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
