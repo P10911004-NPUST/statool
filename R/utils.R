@@ -196,6 +196,30 @@ estimate_cld_pos <- estimate_letter_pos <- function(x){
 
 
 
+# search_sorted <- function(x, insertion, side = "left", descending = FALSE){
+#     if (is_not_vector(x)) stop("Input `x` should be a vector")
+#     if (is_not_vector(insertion)) stop("`insertion` should be a vector")
+#
+#     side <- match.arg(side, c("left", "right"))
+#     x <- sort(x, decreasing = descending)
+#
+#     .get_ind <- function(x, insertion, side, descending){
+#         ind <- which(x == insertion)
+#         if (insertion < min(x)) return(1)
+#         if (insertion > max(x)) return(length(x) + 1)
+#         if (side == "left") return (min(ind))
+#         if (side == "right") return (max(ind))
+#         return(ind)
+#     }
+#
+#     ret <- sapply(
+#         X = insertion,
+#         FUN = function(i) .get_ind(x = x, insertion = i, side = side, descending = descending)
+#     )
+#
+#     return(ret)
+# }
+
 search_sorted <- function(x, insertion, side = "left", descending = FALSE){
     if (is_not_vector(x)) stop("Input `x` should be a vector")
     if (is_not_vector(insertion)) stop("`insertion` should be a vector")
@@ -203,24 +227,32 @@ search_sorted <- function(x, insertion, side = "left", descending = FALSE){
     side <- match.arg(side, c("left", "right"))
     x <- sort(x, decreasing = descending)
 
-    .get_ind <- function(x, insertion, side, descending){
-        ind <- which(x == insertion)
-        if (insertion < min(x)) return(1)
+    .get_ind <- function(x, insertion, side){
+        # ind <- which(x == insertion)
+
+        if (insertion <= min(x)) return(1)
         if (insertion > max(x)) return(length(x) + 1)
-        if (side == "left") return (min(ind))
-        if (side == "right") return (max(ind))
-        return(ind)
-    }
+
+        for (i in seq_along(x)) {
+            if (x[i] == insertion) {
+                if (side == "left") return(i)
+                if (side == "right") return(i + 1)
+            }
+
+            if (x[i] > insertion) {
+                if (side == "left") return(i - 1)
+                if (side == "right") return(i)
+            }
+        }
+    }  # End of .get_ind()
 
     ret <- sapply(
         X = insertion,
-        FUN = function(i) .get_ind(x = x, insertion = i, side = side, descending = descending)
+        FUN = function(i) .get_ind(x, i, side)
     )
 
     return(ret)
 }
-
-
 
 
 
@@ -337,4 +369,3 @@ search_sorted <- function(x, insertion, side = "left", descending = FALSE){
 # }
 
 
->>>>>>> main
