@@ -42,7 +42,15 @@ is_vector <- function(x){
 }
 
 is_not_vector <- function(x){
-    !is.null(dim(x)) & !is.atomic(x)
+    !(is.null(dim(x)) & is.atomic(x))
+}
+
+is_list <- function(x){
+    is.null(dim(x)) & is.vector(x) & !is.atomic(x)
+}
+
+is_not_list <- function(x){
+    !(is.null(dim(x)) & is.vector(x) & !is.atomic(x))
 }
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -135,13 +143,51 @@ dataframe_to_list <- function(data, formula){
     df0 <- stats::model.frame(formula = formula, data = data)
     colnames(df0) <- c("y", "x")
 
-    group_names <- unique(df0$x)
+    group_names <- unique(df0[["x"]])
 
     lst <- list()
     for (g in group_names){
-        lst[[g]] <- subset(df0, x == g, y, drop = TRUE)
+        lst[[g]] <- with(
+            data = df0,
+            expr = subset(
+                subset = (x == g),
+                select = y,
+                drop = TRUE
+            )
+        )
     }
     return(lst)
+}
+
+
+list_to_dataframe <- function(data, formula = NULL){
+    lst <- data
+    if (is_not_list(lst)) stop("Input `data` should be a list")
+    if (is.null(names(lst))) names(lst) <- seq_along(lst)
+
+    if (is.null(formula)){
+        x_name <- "groups"
+        y_name <- "values"
+    } else {
+        x_name <- as.character(formula)[3]
+        y_name <- as.character(formula)[2]
+    }
+
+    df0 <- list2DF(lst)
+
+    df0 <- stats::reshape(
+        data = df0,
+        direction = "long",
+        timevar = x_name,
+        times = colnames(df0),
+        varying = colnames(df0),
+        v.names = y_name,
+        idvar = "|#|@| id |&|*|"
+    )
+
+    ret <- df0[, colnames(df0) != "|#|@| id |&|*|"]
+
+    return(ret)
 }
 
 

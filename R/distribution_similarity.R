@@ -1,6 +1,7 @@
 # Test whether the samples come from the same distribution
 
-ksample_anderson_darling <- function(data, formula){
+# k-sample Anderson Darling test ====
+ksample_anderson_darling <- function(data, formula, midrank = TRUE){
 
     df0 <- stats::model.frame(formula = formula, data = data)
     colnames(df0) <- c("y", "x")
@@ -12,6 +13,7 @@ ksample_anderson_darling <- function(data, formula){
     # N: total number of observations
     # n: number of samples of each groups
     group_names <- unique(df0$x)
+    group_sizes <- tapply(df0$y, df0$x, "length")
     k <- length(group_names)
     N <- nrow(df0)
 
@@ -21,55 +23,24 @@ ksample_anderson_darling <- function(data, formula){
     if (length(Zstar) < 2) stop("Needs more than one distinct observation")
     if (k < 2) stop("Require at least 2 groups")
 
-    stats_mat <- tapply(df0$y, df0$x, function(x) anderson_midrank(x, Z, Zstar, N))
-    # Z_left <- search_sorted(Z, Zstar, side = "left")
-    # Z_right <- search_sorted(Z, Zstar, side = "right")
-    #
-    # if (N == length(Zstar)) lj <- 1  # If all observations are unique values
-    # if (N != length(Zstar)) lj <- Z_right - Z_left  # If tied-values exist
-    #
-    # Baj <- Z_left + (lj / 2)
+    if (midrank) {
+        i <- tapply(df0$y, df0$x, function(x) .anderson_midrank(x, Z, Zstar, N))
+        i_sum <- sum(i)
+        AakN2 <- i_sum * ((N - 1) / N)
+    } else {
+        cat("Not yet")
+    }
 
-    # inner <- c()
-    # for (g in group_names){
-    #     ni <- group_sizes[[g]]
-    #     xi <- subset(df0, x == g, y)[, , drop = TRUE]
-    #     x_right <- search_sorted(xi, Zstar, side = "right")
-    #     x_left <- search_sorted(xi, Zstar, side = "left")
-    #     fij <- x_right - x_left
-    #     Maij <- x_right - (fij / 2)
-    #
-    #     block_A <- 1 / ni
-    #     block_B <- lj / N
-    #     block_C <- ( (N * Maij - ni * Baj) ^ 2 ) / ( (Baj * N) - (Baj ^ 2) - (N * lj / 4) )
-    #     inner <- append( inner, block_A * sum(block_B * block_C) )
-    # }
+    AkN2 <- AakN2
 
-    # AakN2 <- ((N - 1) / N) * sum(inner)
+    # sigmaN2 <- (a * (N ^ 3)) / ()
+    H <- sum(1 / group_sizes)
 
-    # .AakN2 <- function(group_name){
-    #     ni <- group_sizes[[group_name]]
-    #     xi <- subset(df0, x == group_name, y)[, , drop = TRUE]
-    #     x_right <- search_sorted(xi, Zstar, side = "right")
-    #     x_left <- search_sorted(xi, Zstar, side = "left")
-    #     fij <- x_right - x_left
-    #     Maij <- x_right - (fij / 2)
-    #
-    #     block_A <- 1 / ni
-    #     block_B <- lj / N
-    #     block_C <- ( (N * Maij - ni * Baj) ^ 2 ) / ( (Baj * N) - (Baj ^ 2) - (N * lj / 4) )
-    #     inner <- block_A * sum(block_B * block_C)
-    #     return(inner)
-    # }
-    #
-    # ret <- sapply(group_names, .AakN2)
-
-
-    return(stats_mat)
+    return(AakN2)
 }
 
-
-anderson_midrank <- function(x, Z, Zstar, N){
+## Equation 7
+.anderson_midrank <- function(x, Z, Zstar, N){
     x <- sort(x, decreasing = FALSE)
     n <- length(x)
 
@@ -88,18 +59,65 @@ anderson_midrank <- function(x, Z, Zstar, N){
     j_sum <- (lj / N) * ( (N * Maij - n * Baj) ^ 2 ) / ( (Baj * (N - Baj)) - (N * lj / 4) )
     j_sum <- sum(j_sum)
 
-    return(j_sum)
+    i <- j_sum / n
+    return(i)
 }
 
 
-# u1 <- c(1.0066, -0.9587,  0.3462, -0.2653, -1.3872)
-# u2 <- c(0.1005, 0.2252, 0.4810, 0.6992, 1.9289)
-# u3 <- c(-0.7019, -0.4083, -0.9936, -0.5439, -0.3921)
-# y <- c(u1, u2, u3)
-# g <- as.factor(c(rep(1, 5), rep(2, 5), rep(3, 5)))
-# df0 <- data.frame(x = g, y = y)
-# set.seed(2627)
-# kSamples::ad.test(u1, u2, u3, method = "exact", dist = FALSE, Nsim = 1000)
+# ## Equation 6
+# .anderson_right_EDF <- function(x, Z, Zstar, N){
+#     x <- sort(x, decreasing = FALSE)
+#     n <- length(x)
+#
+#     x_left <- search_sorted(x, Zstar, side = "left")
+#     x_right <- search_sorted(x, Zstar, side = "right")
+#     Z_left <- search_sorted(Z, Zstar, side = "left")
+#     Z_right <- search_sorted(Z, Zstar, side = "right")
+#
+#     lj <- 1
+#     if (N != length(Zstar)) lj <- Z_right - Z_left  # If tied-values exist
+#
+#     Baj <- Z_left + (lj / 2)
+#     fij <- x_right - x_left
+#     Maij <- x_right - (fij / 2)
+#
+#     j_sum <- (lj / N) * ( (N * Maij - n * Baj) ^ 2 ) / ( (Baj * (N - Baj)) - (N * lj / 4) )
+#     j_sum <- sum(j_sum)
+#
+#     i <- j_sum / n
+#
+#     return(i)
+# }
+
+# ## sigma_N for k-sample Anderson Darling ====
+# .sigmaN <- function(){
+#
+# }
+
+source("./utils.R")
+exp_data_0 <- data.frame(
+    A = c(38.7, 41.5, 43.8, 44.5, 45.5, 46.0, 47.7, 58.0),
+    B = c(39.2, 39.3, 39.7, 41.4, 41.8, 42.9, 43.3, 45.8),
+    C = c(34.0, 35.0, 39.0, 40.0, 43.0, 43.0, 44.0, 45.0),
+    D = c(34.0, 34.8, 34.8, 35.4, 37.2, 37.8, 41.2, 42.8)
+)
+
+exp_data_1 <- stats::reshape(
+    data = exp_data_0,
+    direction = "long",
+    timevar = "Laboratory",
+    times = colnames(exp_data_0),
+    varying = colnames(exp_data_0),
+    v.names = "Smoothness"
+)
+
+res0 <- ksample_anderson_darling(exp_data_1, Smoothness ~ Laboratory)
+res1 <- with(exp_data_0, kSamples::ad.test(A, B, C, D))
+res0
+res1$ad[2, ][["AD"]]
+
+
+
 
 
 
