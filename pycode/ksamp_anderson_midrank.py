@@ -12,6 +12,7 @@ def anderson_ksamp_midrank(samples, Z, Zstar, k, n, N):
     for i in np.arange(0, k):
         s = np.sort(samples[i])
         s_ssorted_right = s.searchsorted(Zstar, side='right')
+        
         Mij = s_ssorted_right.astype(float)
         fij = s_ssorted_right - s.searchsorted(Zstar, 'left')
         Mij -= fij / 2.
@@ -35,6 +36,7 @@ def anderson_ksamp(samples, midrank=True, *, method=None):
         A2kN_fun = anderson_ksamp_right
     A2kN = A2kN_fun(samples, Z, Zstar, k, n, N)
 
+    
     return A2kN
 
 
@@ -44,6 +46,10 @@ df0 = np.array([
     [34.0, 35.0, 39.0, 40.0, 43.0, 43.0, 44.0, 45.0],
     [34.0, 34.8, 34.8, 35.4, 37.2, 37.8, 41.2, 42.8]
 ])
+
+
+#res = anderson_ksamp_midrank(df0)
+#print(res)
 
 res = anderson_ksamp(df0)
 print(res)

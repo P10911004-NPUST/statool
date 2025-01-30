@@ -18,7 +18,7 @@ ksample_anderson_darling <- function(data, formula, midrank = TRUE){
     N <- nrow(df0)
 
     Z <- sort(df0$y, decreasing = FALSE)
-    Zstar <- sort(unique(Z), decreasing = FALSE)
+    Zstar <- sort(unique(Z), decreasing = FALSE)  # until here, no problem
 
     if (length(Zstar) < 2) stop("Needs more than one distinct observation")
     if (k < 2) stop("Require at least 2 groups")
@@ -46,6 +46,7 @@ ksample_anderson_darling <- function(data, formula, midrank = TRUE){
 
     x_left <- search_sorted(x, Zstar, side = "left")
     x_right <- search_sorted(x, Zstar, side = "right")
+    return(x_right)
     Z_left <- search_sorted(Z, Zstar, side = "left")
     Z_right <- search_sorted(Z, Zstar, side = "right")
 
@@ -95,26 +96,38 @@ ksample_anderson_darling <- function(data, formula, midrank = TRUE){
 # }
 
 source("./utils.R")
-exp_data_0 <- data.frame(
+exp_data <- data.frame(
     A = c(38.7, 41.5, 43.8, 44.5, 45.5, 46.0, 47.7, 58.0),
     B = c(39.2, 39.3, 39.7, 41.4, 41.8, 42.9, 43.3, 45.8),
     C = c(34.0, 35.0, 39.0, 40.0, 43.0, 43.0, 44.0, 45.0),
     D = c(34.0, 34.8, 34.8, 35.4, 37.2, 37.8, 41.2, 42.8)
 )
 
-exp_data_1 <- stats::reshape(
-    data = exp_data_0,
+exp_data <- stats::reshape(
+    data = exp_data,
     direction = "long",
     timevar = "Laboratory",
-    times = colnames(exp_data_0),
-    varying = colnames(exp_data_0),
+    times = colnames(exp_data),
+    varying = colnames(exp_data),
     v.names = "Smoothness"
 )
 
-res0 <- ksample_anderson_darling(exp_data_1, Smoothness ~ Laboratory)
-res1 <- with(exp_data_0, kSamples::ad.test(A, B, C, D))
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Testing ====
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Z <- 0
+Zstar <- 0
+N <- 0
+
+.anderson_midrank()
+# res0 <- with(exp_data, kSamples::ad.test(A, B, C, D))
+# res0$ad[2, ][["AD"]]
+
+res0 <- ksample_anderson_darling(exp_data, Smoothness ~ Laboratory)
 res0
-res1$ad[2, ][["AD"]]
+
+
 
 
 
