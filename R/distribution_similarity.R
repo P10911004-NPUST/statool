@@ -9,19 +9,17 @@ ksample_anderson_darling <- function(data, formula, midrank = TRUE){
     df0 <- df0[stats::complete.cases(df0), ]
     df0 <- df0[order(df0$y, decreasing = FALSE), ]
 
-    # k: number of groups
-    # N: total number of observations
     # n: number of samples of each groups
     group_names <- unique(df0$x)
     group_sizes <- tapply(df0$y, df0$x, "length")
-    k <- length(group_names)
-    N <- nrow(df0)
+    k <- length(group_names)  # number of groups
+    N <- nrow(df0)  # total number of observations
 
     Z <- sort(df0$y, decreasing = FALSE)
-    Zstar <- sort(unique(Z), decreasing = FALSE)  # until here, no problem
+    Zstar <- sort(unique(Z), decreasing = FALSE)
 
-    if (length(Zstar) < 2) stop("Needs more than one distinct observation")
-    if (k < 2) stop("Require at least 2 groups")
+    # if (length(Zstar) < 2) stop("Needs more than one distinct observation")
+    # if (k < 2) stop("Require at least 2 groups")
 
     if (midrank) {
         i <- tapply(df0$y, df0$x, function(x) .anderson_midrank(x, Z, Zstar, N))
@@ -42,13 +40,13 @@ ksample_anderson_darling <- function(data, formula, midrank = TRUE){
 ## Equation 7
 .anderson_midrank <- function(x, Z, Zstar, N){
     x <- sort(x, decreasing = FALSE)
-    n <- length(x)
+    n <- length(x)  # number of observations for each group
 
     x_left <- search_sorted(x, Zstar, side = "left")
     x_right <- search_sorted(x, Zstar, side = "right")
-    return(x_right)
+
     Z_left <- search_sorted(Z, Zstar, side = "left")
-    Z_right <- search_sorted(Z, Zstar, side = "right")
+    Z_right <- search_sorted(Z, Zstar, side = "right")  ## have problem
 
     lj <- 1
     if (N != length(Zstar)) lj <- Z_right - Z_left  # If tied-values exist
@@ -61,7 +59,7 @@ ksample_anderson_darling <- function(data, formula, midrank = TRUE){
     j_sum <- sum(j_sum)
 
     i <- j_sum / n
-    return(i)
+    return(Z_right)
 }
 
 
@@ -95,6 +93,11 @@ ksample_anderson_darling <- function(data, formula, midrank = TRUE){
 #
 # }
 
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Testing ====
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 source("./utils.R")
 exp_data <- data.frame(
     A = c(38.7, 41.5, 43.8, 44.5, 45.5, 46.0, 47.7, 58.0),
@@ -112,20 +115,27 @@ exp_data <- stats::reshape(
     v.names = "Smoothness"
 )
 
+x <- 0
+Z <- c(
+    34.0, 34.0, 34.8, 34.8, 35.0, 35.4, 37.2, 37.8, 38.7, 39.0, 39.2, 39.3,
+    39.7, 40.0, 41.2, 41.4, 41.5, 41.8, 42.8, 42.9, 43.0, 43.0, 43.3, 43.8,
+    44.0, 44.5, 45.0, 45.5, 45.8, 46.0, 47.7, 58.0
+)
+Zstar <- c(
+    34.0, 34.8, 35.0, 35.4, 37.2, 37.8, 38.7, 39.0, 39.2, 39.3, 39.7, 40.0, 41.2, 41.4,
+    41.5, 41.8, 42.8, 42.9, 43.0, 43.3, 43.8, 44.0, 44.5, 45.0, 45.5, 45.8, 46.0, 47.7, 58.0
+)
+N <- 32
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-# Testing ====
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Z <- 0
-Zstar <- 0
-N <- 0
 
-.anderson_midrank()
+tapply(exp_data$Smoothness, exp_data$Laboratory, function(x) .anderson_midrank(x, Z, Zstar, N))
+
+
 # res0 <- with(exp_data, kSamples::ad.test(A, B, C, D))
 # res0$ad[2, ][["AD"]]
 
-res0 <- ksample_anderson_darling(exp_data, Smoothness ~ Laboratory)
-res0
+# res0 <- ksample_anderson_darling(exp_data, Smoothness ~ Laboratory)
+# res0
 
 
 

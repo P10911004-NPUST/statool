@@ -4,10 +4,12 @@ from scipy import stats
 def anderson_ksamp_midrank(samples, Z, Zstar, k, n, N):
     A2akN = 0.
     Z_ssorted_left = Z.searchsorted(Zstar, 'left')
+
     if N == Zstar.size:
         lj = 1.
     else:
         lj = Z.searchsorted(Zstar, 'right') - Z_ssorted_left
+
     Bj = Z_ssorted_left + lj / 2.
     for i in np.arange(0, k):
         s = np.sort(samples[i])
@@ -19,7 +21,7 @@ def anderson_ksamp_midrank(samples, Z, Zstar, k, n, N):
         inner = lj / float(N) * (N*Mij - Bj*n[i])**2 / (Bj*(N - Bj) - N*lj/4.)
         A2akN += inner.sum() / n[i]
     A2akN *= (N - 1.) / N
-    return A2akN
+    return Z.searchsorted(Zstar, 'right')
 
 
 def anderson_ksamp(samples, midrank=True, *, method=None):
@@ -34,9 +36,8 @@ def anderson_ksamp(samples, midrank=True, *, method=None):
         A2kN_fun = anderson_ksamp_midrank
     else:
         A2kN_fun = anderson_ksamp_right
-    A2kN = A2kN_fun(samples, Z, Zstar, k, n, N)
 
-    
+    A2kN = A2kN_fun(samples, Z, Zstar, k, n, N)
     return A2kN
 
 
