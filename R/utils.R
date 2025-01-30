@@ -1,5 +1,3 @@
-
-
 #' Standard deviation of the population
 #'
 #' @param x A numeric vector
@@ -44,7 +42,15 @@ is_vector <- function(x){
 }
 
 is_not_vector <- function(x){
-    !is.null(dim(x)) & !is.atomic(x)
+    !(is.null(dim(x)) & is.atomic(x))
+}
+
+is_list <- function(x){
+    is.null(dim(x)) & is.vector(x) & !is.atomic(x)
+}
+
+is_not_list <- function(x){
+    !(is.null(dim(x)) & is.vector(x) & !is.atomic(x))
 }
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -137,13 +143,51 @@ dataframe_to_list <- function(data, formula){
     df0 <- stats::model.frame(formula = formula, data = data)
     colnames(df0) <- c("y", "x")
 
-    group_names <- unique(df0$x)
+    group_names <- unique(df0[["x"]])
 
     lst <- list()
     for (g in group_names){
-        lst[[g]] <- subset(df0, x == g, y, drop = TRUE)
+        lst[[g]] <- with(
+            data = df0,
+            expr = subset(
+                subset = (x == g),
+                select = y,
+                drop = TRUE
+            )
+        )
     }
     return(lst)
+}
+
+
+list_to_dataframe <- function(data, formula = NULL){
+    lst <- data
+    if (is_not_list(lst)) stop("Input `data` should be a list")
+    if (is.null(names(lst))) names(lst) <- seq_along(lst)
+
+    if (is.null(formula)){
+        x_name <- "groups"
+        y_name <- "values"
+    } else {
+        x_name <- as.character(formula)[3]
+        y_name <- as.character(formula)[2]
+    }
+
+    df0 <- list2DF(lst)
+
+    df0 <- stats::reshape(
+        data = df0,
+        direction = "long",
+        timevar = x_name,
+        times = colnames(df0),
+        varying = colnames(df0),
+        v.names = y_name,
+        idvar = "|#|@| id |&|*|"
+    )
+
+    ret <- df0[, colnames(df0) != "|#|@| id |&|*|"]
+
+    return(ret)
 }
 
 
@@ -198,6 +242,30 @@ estimate_cld_pos <- estimate_letter_pos <- function(x){
 
 
 
+# search_sorted <- function(x, insertion, side = "left", descending = FALSE){
+#     if (is_not_vector(x)) stop("Input `x` should be a vector")
+#     if (is_not_vector(insertion)) stop("`insertion` should be a vector")
+#
+#     side <- match.arg(side, c("left", "right"))
+#     x <- sort(x, decreasing = descending)
+#
+#     .get_ind <- function(x, insertion, side, descending){
+#         ind <- which(x == insertion)
+#         if (insertion < min(x)) return(1)
+#         if (insertion > max(x)) return(length(x) + 1)
+#         if (side == "left") return (min(ind))
+#         if (side == "right") return (max(ind))
+#         return(ind)
+#     }
+#
+#     ret <- sapply(
+#         X = insertion,
+#         FUN = function(i) .get_ind(x = x, insertion = i, side = side, descending = descending)
+#     )
+#
+#     return(ret)
+# }
+
 search_sorted <- function(x, insertion, side = "left", descending = FALSE){
     if (is_not_vector(x)) stop("Input `x` should be a vector")
     if (is_not_vector(insertion)) stop("`insertion` should be a vector")
@@ -205,24 +273,32 @@ search_sorted <- function(x, insertion, side = "left", descending = FALSE){
     side <- match.arg(side, c("left", "right"))
     x <- sort(x, decreasing = descending)
 
-    .get_ind <- function(x, insertion, side, descending){
-        ind <- which(x == insertion)
-        if (insertion < min(x)) return(1)
+    .get_ind <- function(x, insertion, side){
+        # ind <- which(x == insertion)
+
+        if (insertion <= min(x)) return(1)
         if (insertion > max(x)) return(length(x) + 1)
-        if (side == "left") return (min(ind))
-        if (side == "right") return (max(ind))
-        return(ind)
-    }
+
+        for (i in seq_along(x)) {
+            if (x[i] == insertion) {
+                if (side == "left") return(i)
+                if (side == "right") return(i + 1)
+            }
+
+            if (x[i] > insertion) {
+                if (side == "left") return(i - 1)
+                if (side == "right") return(i)
+            }
+        }
+    }  # End of .get_ind()
 
     ret <- sapply(
         X = insertion,
-        FUN = function(i) .get_ind(x = x, insertion = i, side = side, descending = descending)
+        FUN = function(i) .get_ind(x, i, side)
     )
 
     return(ret)
 }
-
-
 
 
 
