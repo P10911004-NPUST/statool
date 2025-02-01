@@ -116,9 +116,9 @@ barlett_test <- function(data, formula){
 #' \emph{An R Companion to Applied Regression},
 #' Third Edition, Sage.
 #' @seealso [car::leveneTest()]
-levene_test <- function(data, formula, method = NULL){
-    if (is.null(method)) method <- "trim_mean"
-    method <- match.arg(method, c("trim_mean", "mean", "median"))
+levene_test <- function(data, formula, method = "median")
+{
+    method <- match.arg(method, c("median", "trim_mean", "mean"))
 
     trim_mean <- function(x) mean(x, trim = 0.1)
 

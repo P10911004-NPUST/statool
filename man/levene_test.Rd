@@ -4,7 +4,7 @@
 \alias{levene_test}
 \title{Levene's test}
 \usage{
-levene_test(data, formula, method = NULL)
+levene_test(data, formula, method = "median")
 }
 \arguments{
 \item{data}{data frame}

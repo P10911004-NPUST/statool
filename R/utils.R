@@ -83,7 +83,7 @@ is_tied <- function(data, formula)
 
         df0 <- df0[!is.na(df0$y), ]
 
-        res <- any(with(df0, tapply(y, x, "stats::sd")) == 0)
+        res <- any(with(df0, tapply(y, x, stats::sd)) == 0)
     }
 
     if (is.null(dim(data))){
@@ -94,8 +94,16 @@ is_tied <- function(data, formula)
 }
 
 
-## Check data normality
-is_normal <- function(data, formula, alpha = 0.05)
+
+#' Check data normality
+#'
+#' @param data A data frame in which the variables specified in the formula will be found.
+#' @param formula A formula specifying the model.
+#' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
+#'
+#' @return A boolean value indicating the acceptance of normality assumption
+#' @export
+is_normality <- function(data, formula, alpha = 0.05)
 {
     #### Dataframe input
     if (is_dataframe(data))
@@ -165,7 +173,7 @@ dataframe_to_list <- function(data, formula)
 list_to_dataframe <- function(data, formula = NULL)
 {
     lst <- data
-    max_n <- base::max(base::sapply(x, length))
+    max_n <- base::max(base::sapply(lst, length))
 
     if (is_not_list(lst)) stop("Input `data` should be a list")
     if (base::is.null(base::names(lst))) base::names(lst) <- base::seq_along(lst)
@@ -215,7 +223,7 @@ outer2 <- function(x, FUN = "paste", drop = TRUE)
 estimate_cld_pos <- estimate_letter_pos <- function(x)
 {
     MAX <- base::max(x)
-    letter_pos <- MAX + ((base::ceiling(base::max(MAX) * 1.15) - base::max(MAX)) * 0.43)
+    letter_pos <- MAX + ((base::ceiling(base::max(MAX) * 1.15) - base::max(MAX)) * 0.66)
     return(letter_pos)
 }
 
