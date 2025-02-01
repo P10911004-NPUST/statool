@@ -20,8 +20,9 @@ def anderson_ksamp_midrank(samples, Z, Zstar, k, n, N):
         Mij -= fij / 2.
         inner = lj / float(N) * (N*Mij - Bj*n[i])**2 / (Bj*(N - Bj) - N*lj/4.)
         A2akN += inner.sum() / n[i]
+        print(A2akN)
     A2akN *= (N - 1.) / N
-    return Z.searchsorted(Zstar, 'right')
+    return A2akN
 
 
 def anderson_ksamp(samples, midrank=True, *, method=None):
@@ -54,3 +55,5 @@ df0 = np.array([
 
 res = anderson_ksamp(df0)
 print(res)
+
+stats.anderson_ksamp
