@@ -20,6 +20,9 @@ sd_population <- function(x){
 }
 
 
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# Data structure ====
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #' Check vector
 #'
 #' Check if an object is a vector.
@@ -37,26 +40,23 @@ sd_population <- function(x){
 #'
 #' is_vector(list(a = c(1, 2, 3), b = c("a", "b", "c")))
 #' #> FALSE
-is_vector <- function(x){
-    is.null(dim(x)) & is.atomic(x)
-}
+is_vector <- function(x) { base::is.null(base::dim(x)) & base::is.atomic(x) }
+is_not_vector <- function(x) { !(base::is.null(base::dim(x)) & base::is.atomic(x)) }
 
-is_not_vector <- function(x){
-    !(is.null(dim(x)) & is.atomic(x))
-}
+is_list <- function(x) { base::is.list(x) & !base::is.atomic(x) & "list" %in% base::class(x) }
+is_not_list <- function(x) { !(base::is.list(x) & !base::is.atomic(x) & "list" %in% base::class(x)) }
 
-is_list <- function(x){
-    is.null(dim(x)) & is.vector(x) & !is.atomic(x)
-}
+is_dataframe <- function(x) { base::length(base::dim(x)) > 1 & base::is.data.frame(x) }
+is_not_dataframe <- function(x) { !(base::length(base::dim(x)) == 2 & base::is.data.frame(x)) }
 
-is_not_list <- function(x){
-    !(is.null(dim(x)) & is.vector(x) & !is.atomic(x))
-}
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-## Check if sample sizes are not equal
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-is_unbalance <- function(data, formula){
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# Groups homogeneity ====
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+## Check if the sample sizes of each groups are not equal
+is_unbalance <- function(data, formula)
+{
     x_name <- as.character(formula)[3]
     y_name <- as.character(formula)[2]
     df0 <- data.frame(
@@ -69,10 +69,9 @@ is_unbalance <- function(data, formula){
 }
 
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-## Check if the data is tied (all values are identical)
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-is_tied <- function(data, formula){
+## Check if the data is tied (values are identical)
+is_tied <- function(data, formula)
+{
     if (is.data.frame(data)) {
         y_name <- as.character(formula)[2]
         x_name <- as.character(formula)[3]
@@ -95,13 +94,12 @@ is_tied <- function(data, formula){
 }
 
 
-
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ## Check data normality
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-is_normal <- function(data, formula, alpha = 0.05) {
-    #### Dataframe input ====
-    if (is.data.frame(data)) {
+is_normal <- function(data, formula, alpha = 0.05)
+{
+    #### Dataframe input
+    if (is_dataframe(data))
+    {
         y_name <- as.character(formula)[2]
         x_name <- as.character(formula)[3]
 
@@ -121,8 +119,9 @@ is_normal <- function(data, formula, alpha = 0.05) {
         }
     }
 
-    #### Vector input ====
-    if (is.null(dim(data))) {
+    #### Vector input
+    if (is_vector(data))
+    {
         data <- stats::na.omit(data)
 
         if (is_tied(data)) {
@@ -137,7 +136,8 @@ is_normal <- function(data, formula, alpha = 0.05) {
 }
 
 
-dataframe_to_list <- function(data, formula){
+dataframe_to_list <- function(data, formula)
+{
     if (!is.data.frame(data)) stop("Input `data` should be a dataframe")
 
     df0 <- stats::model.frame(formula = formula, data = data)
@@ -146,7 +146,8 @@ dataframe_to_list <- function(data, formula){
     group_names <- unique(df0[["x"]])
 
     lst <- list()
-    for (g in group_names){
+    for (g in group_names)
+    {
         lst[[g]] <- with(
             data = df0,
             expr = subset(
@@ -156,24 +157,29 @@ dataframe_to_list <- function(data, formula){
             )
         )
     }
+
     return(lst)
 }
 
 
-list_to_dataframe <- function(data, formula = NULL){
+list_to_dataframe <- function(data, formula = NULL)
+{
     lst <- data
-    if (is_not_list(lst)) stop("Input `data` should be a list")
-    if (is.null(names(lst))) names(lst) <- seq_along(lst)
+    max_n <- base::max(base::sapply(x, length))
 
-    if (is.null(formula)){
+    if (is_not_list(lst)) stop("Input `data` should be a list")
+    if (base::is.null(base::names(lst))) base::names(lst) <- base::seq_along(lst)
+
+    if (base::is.null(formula))
+    {
         x_name <- "groups"
         y_name <- "values"
     } else {
-        x_name <- as.character(formula)[3]
-        y_name <- as.character(formula)[2]
+        x_name <- base::as.character(formula)[3]
+        y_name <- base::as.character(formula)[2]
     }
 
-    df0 <- list2DF(lst)
+    df0 <- base::list2DF(lst)
 
     df0 <- stats::reshape(
         data = df0,
@@ -195,112 +201,23 @@ list_to_dataframe <- function(data, formula = NULL){
 ## Equal to `outer(X = x1, Y = x1, FUN = function(x1, x2) paste(x1, x2, sep = " "))`
 ## applying the `paste` function to the two identical matrices
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-outer2 <- function(x, FUN = "paste", drop = TRUE){
-    res <- outer(x, x, FUN)
-    if (drop) res <- res[upper.tri(res)]
+outer2 <- function(x, FUN = "paste", drop = TRUE)
+{
+    res <- base::outer(x, x, FUN)
+    if (drop) res <- res[base::upper.tri(res)]
     return(res)
 }
-
-
-# qDunnett <- function (p, df, k, rho,
-#                       type = c("two-sided", "one-sided"))
-# {
-#     type <- match.arg(type)
-#     alpha <- 1 - p
-#     if (type == "two-sided") {
-#         alpha <- alpha/2
-#     }
-#     S <- matrix(rho, nrow=k, ncol=k) + (1-rho)*diag(k)
-#     if (type == "two-sided") {
-#         f <- function(d, df, k, S, p) {
-#             mnormt::sadmvt(df=df, lower=rep(-d,k), upper=rep(d,k),
-#                            mean=rep(0,k), S=S, maxpts=2000*k) - p
-#         }
-#     }
-#     else {
-#         f <- function(d, df, k, S, p) {
-#             mnormt::pmt(d, S=S, df=df) - p
-#         }
-#     }
-#     d <- uniroot(f,
-#                  df = df, k = k, S = S, p=p,
-#                  lower=qt(1 - alpha, df),
-#                  upper=qt(1 - alpha/k, df),
-#                  tol=.Machine$double.eps, maxiter=5000)$root
-#     return(d)
-# }
 
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ## Estimate the compact letter display (CLD) position to show on the plot
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-estimate_cld_pos <- estimate_letter_pos <- function(x){
-    MAX <- max(x)
-    letter_pos <- MAX + ((ceiling(max(MAX) * 1.15) - max(MAX)) * 0.43)
+estimate_cld_pos <- estimate_letter_pos <- function(x)
+{
+    MAX <- base::max(x)
+    letter_pos <- MAX + ((base::ceiling(base::max(MAX) * 1.15) - base::max(MAX)) * 0.43)
     return(letter_pos)
 }
-
-
-
-# search_sorted <- function(x, insertion, side = "left", descending = FALSE){
-#     if (is_not_vector(x)) stop("Input `x` should be a vector")
-#     if (is_not_vector(insertion)) stop("`insertion` should be a vector")
-#
-#     side <- match.arg(side, c("left", "right"))
-#     x <- sort(x, decreasing = descending)
-#
-#     .get_ind <- function(x, insertion, side, descending){
-#         ind <- which(x == insertion)
-#         if (insertion < min(x)) return(1)
-#         if (insertion > max(x)) return(length(x) + 1)
-#         if (side == "left") return (min(ind))
-#         if (side == "right") return (max(ind))
-#         return(ind)
-#     }
-#
-#     ret <- sapply(
-#         X = insertion,
-#         FUN = function(i) .get_ind(x = x, insertion = i, side = side, descending = descending)
-#     )
-#
-#     return(ret)
-# }
-
-search_sorted <- function(x, insertion, side = "left", descending = FALSE){
-    if (is_not_vector(x)) stop("Input `x` should be a vector")
-    if (is_not_vector(insertion)) stop("`insertion` should be a vector")
-
-    side <- match.arg(side, c("left", "right"))
-    x <- sort(x, decreasing = descending)
-
-    .get_ind <- function(x, insertion, side){
-        # ind <- which(x == insertion)
-
-        if (insertion <= min(x)) return(1)
-        if (insertion > max(x)) return(length(x) + 1)
-
-        for (i in seq_along(x)) {
-            if (x[i] == insertion) {
-                if (side == "left") return(i)
-                if (side == "right") return(i + 1)
-            }
-
-            if (x[i] > insertion) {
-                if (side == "left") return(i - 1)
-                if (side == "right") return(i)
-            }
-        }
-    }  # End of .get_ind()
-
-    ret <- sapply(
-        X = insertion,
-        FUN = function(i) .get_ind(x, i, side)
-    )
-
-    return(ret)
-}
-
-
 
 
 
