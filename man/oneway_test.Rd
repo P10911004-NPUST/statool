@@ -9,7 +9,7 @@ oneway_test(
   formula,
   alpha = 0.05,
   p_adjust_method = "holm",
-  use_art = FALSE
+  use_art = TRUE
 )
 }
 \arguments{
