@@ -223,7 +223,7 @@ outer2 <- function(x, FUN = "paste", drop = TRUE)
 estimate_cld_pos <- estimate_letter_pos <- function(x)
 {
     MAX <- base::max(x)
-    letter_pos <- MAX + ((base::ceiling(base::max(MAX) * 1.15) - base::max(MAX)) * 0.66)
+    letter_pos <- x + ((base::ceiling(base::max(MAX) * 1.15) - base::max(x)) * 0.66)
     return(letter_pos)
 }
 

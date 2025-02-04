@@ -55,6 +55,12 @@ compact_letter_display <- function(
     if (any(grepl(comparison_symbol, groups)))
         stop("Comparison symbol should not exists in group names")
 
+    if (all(pval >= alpha)) {
+        res <- rep(display_symbols[1], times = length(groups))
+        names(res) <- groups
+        return(res)
+    }
+
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     ## The p-value of each comparisons ====
     ## the order does not matter
