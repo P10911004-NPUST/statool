@@ -118,7 +118,7 @@ barlett_test <- function(data, formula){
 #' @seealso [car::leveneTest()]
 levene_test <- function(data, formula, method = "median")
 {
-    method <- match.arg(method, c("median", "trim_mean", "mean"))
+    method <- match.arg(method, c("median", "mean", "trim_mean"))
 
     trim_mean <- function(x) mean(x, trim = 0.1)
 

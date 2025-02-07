@@ -19,11 +19,12 @@ oneway_test <- function(
     p_adjust_method <- match.arg(p_adjust_method, stats::p.adjust.methods)
 
     df0 <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
-    # y_name <- colnames(df0)[1]
-    # x_name <- colnames(df0)[2]
+    y <- colnames(df0)[1]
+    x <- colnames(df0)[2]
     colnames(df0) <- c("y", "x")
 
     is_normal <- is_normality(df0, y ~ x)  # from "./utils.R"
+    # is_normal <- with(df0, is_normality(df0, get(y) ~ get(x)))  # from "./utils.R"
     is_balance <- !is_unbalance(df0, y ~ x)  # from "./utils.R"
     is_var_equal <- levene_test(df0, y ~ x)[["is_var_equal"]]  # from "./homoscedasticity.R"
 
@@ -81,6 +82,8 @@ oneway_test <- function(
         {
             tests <- "Aligned Rank Transform (ART) + ART-Contrast"
             post_hoc <- list()
+
+            if ( ! is.factor(df0$x) ) df0$x <- as.factor(df0$x)
 
             art_mod <- ARTool::art(formula = y ~ x, data = df0)
             pre_hoc <- stats::anova(art_mod)

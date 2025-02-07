@@ -1,5 +1,55 @@
 # Normality test ====
 
+#' Check data normality
+#'
+#' @param data A data frame in which the variables specified in the formula will be found.
+#' @param formula A formula specifying the model.
+#' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
+#'
+#' @return A boolean value indicating the acceptance of normality assumption
+#' @export
+is_normality <- function(data, formula, alpha = 0.05)
+{
+    #### Dataframe input
+    if (is_dataframe(data))
+    {
+        y_name <- as.character(formula)[2]
+        x_name <- as.character(formula)[3]
+
+        df0 <- data.frame(
+            y = data[[y_name]],
+            x = data[[x_name]]
+        )
+
+        df0 <- df0[!is.na(df0$y), , drop = FALSE]
+
+        no_variation <- any(tapply(df0$y, df0$x, function(x) stats::sd(x) == 0))
+        if (no_variation) {
+            warning("Standard deviation == 0")
+            res <- FALSE
+        } else {
+            aov_mod <- stats::aov(formula = y ~ x, data = df0)
+            res <- stats::shapiro.test(aov_mod$residuals)$p.value > alpha
+        }
+    }
+
+    #### Vector input
+    if (is_vector(data))
+    {
+        data <- stats::na.omit(data)
+
+        no_variation <- stats::sd(data) == 0
+        if (no_variation) {
+            warning("Standard deviation == 0")
+            res <- FALSE
+        } else {
+            res <- stats::shapiro.test(data)$p.value > alpha
+        }
+    }
+
+    return(res)
+}
+
 
 #' Skewness of the sample / population distribution
 #'
