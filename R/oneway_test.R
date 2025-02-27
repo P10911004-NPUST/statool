@@ -94,6 +94,7 @@ oneway_test <- function(
                 formula = ~ x,
                 adjust = p_adjust_method
             )
+            tmp_art_c <- art_c
             art_c <- as.data.frame(art_c)
 
             #### Tidy-up contrasts
@@ -111,12 +112,29 @@ oneway_test <- function(
 
             cont_vct <- vector("character", length = length(group_comb))
             pval_vct <- vector("numeric", length = length(group_comb))
+
             for (i in seq_along(group_comb)) {
                 gname1 <- group_comb[[i]][1]
                 gname2 <- group_comb[[i]][2]
-                bool1 <- grepl(gname1, art_c$contrast)
-                bool2 <- grepl(gname2, art_c$contrast)
-                pval <- art_c[["p.value"]][bool1 & bool2]
+
+                gname1_2 <- sprintf("x%s - x%s", gname1, gname2)
+                gname2_1 <- sprintf("x%s - x%s", gname2, gname1)
+
+                bool1 <- vapply(
+                    X = art_c$contrast,
+                    FUN = function(x) identical(x, gname1_2),
+                    FUN.VALUE = logical(1)
+                )
+
+                bool2 <- vapply(
+                    X = art_c$contrast,
+                    FUN = function(x) identical(x, gname2_1),
+                    FUN.VALUE = logical(1)
+                )
+
+                bool <- bool1 | bool2
+
+                pval <- as.numeric(art_c[["p.value"]][bool1 | bool2])
 
                 cont_vct[i] <- paste(gname1, gname2, sep = " |vs| ")
                 pval_vct[i] <- pval
