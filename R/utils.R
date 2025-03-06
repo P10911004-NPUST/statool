@@ -21,6 +21,36 @@ sd_population <- function(x){
 
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# Data types ====
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#' Check if the element in character strings could be numeric
+#' @param x Character strings
+#' @return Boolean values
+#' @export
+#' @examples
+#' x <- c("1a", ".7", "46", "2.3.3", "1.2r", "1.2", "1e4", "a1", "5L", "-.22", -Inf, NA, NaN)
+#' could_be_number(x)
+#' #>    1a    .7    46 2.3.3  1.2r   1.2   1e4    a1    5L  -.22  -Inf    NA   NaN
+#' #> FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE FALSE
+could_be_number <- function(x)
+{
+    ret <- sapply(x,
+        function(xs) {
+            out <- try(eval(parse(text = xs)), silent = TRUE)
+            out <- !inherits(out, "try-error")
+            return(out)
+        }
+    )
+
+    ret[is.na(names(ret))] <- FALSE
+    names(ret)[is.na(names(ret))] <- "NA"
+    ret[names(ret) == "NaN"] <- FALSE
+
+    return(ret)
+}
+
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # Data structure ====
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #' Check vector
@@ -167,15 +197,38 @@ outer2 <- function(x, FUN = "paste", drop = TRUE)
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ## Estimate the compact letter display (CLD) position to show on the plot
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-estimate_cld_pos <- estimate_letter_pos <- function(x)
+#' Estimate the suitable compact letter y-position used in the ggplot boxplot
+#' @param x The maximum values of each groups
+#' @return numeric values (y-axis position)
+#' @importFrom ggplot2 ggplot aes geom_boxplot geom_point geom_text
+#' @export
+#' @examples
+#' library(ggplot2)
+#' data("iris")
+#' res <- statool::oneway_test(iris, Sepal.Length ~ Species)
+#' cld <- res$result
+#' cld$y_pos <- estimate_cld_pos(cld$MAX)
+#' print(cld)
+#' #>                GROUPS  N   AVG        SD MED MIN MAX CLD y_pos
+#' #> virginica   virginica 50 6.588 0.6358796 6.5 4.9 7.9   a 9.286
+#' #> versicolor versicolor 50 5.936 0.5161711 5.9 4.9 7.0   b 8.386
+#' #> setosa         setosa 50 5.006 0.3524897 5.0 4.3 5.8   c 7.186
+#'
+#' ggplot(iris, aes(Species, Sepal.Length, color = Species)) +
+#'     geom_boxplot() +
+#'     geom_point() +
+#'     geom_text(
+#'         inherit.aes = FALSE,
+#'         data = cld,
+#'         mapping = aes(GROUPS, y_pos, label = CLD)
+#'     )
+estimate_cld_pos <- function(x)
 {
-    MAX <- base::max(x)
-    letter_pos <- x + ((base::ceiling(base::max(MAX) * 1.15) - base::max(x)) * 0.66)
+    x <- stats::na.omit(x)
+    MAX <- max(x)
+    letter_pos <- x + ((ceiling(max(MAX) * 1.12) - max(x)) * 0.57)
     return(letter_pos)
 }
-
-
-
 
 
 

@@ -11,8 +11,8 @@
 You can install the development version of `statool` from [GitHub](https://github.com/) with:
 
 ``` r
-if (!require(pak)) install.packages("pak")
-pak::pak("P10911004-NPUST/statool")
+if (!require(devtools)) install.packages("devtools")
+devtools::install_github("P10911004-NPUST/statool")
 ```
 
 

@@ -83,6 +83,14 @@ oneway_test <- function(
             tests <- "Aligned Rank Transform (ART) + ART-Contrast"
             post_hoc <- list()
 
+            # If the group names start with numbers, then implement an "x" at the beginning
+            # group_name_first_character <- do.call(rbind, strsplit(as.character(df0$x), ""))[, 1]
+            df0_x <- strsplit(as.character(df0$x), "")
+            group_name_first_character <- vapply(df0_x, function(x) x[1], FUN.VALUE = character(1))
+
+            # insert_x_to_name <- !all(is.na(suppressWarnings(as.numeric(group_name_first_character))))
+            insert_x_to_name <- any(could_be_number(group_name_first_character))
+
             if ( ! is.factor(df0$x) ) df0$x <- as.factor(df0$x)
 
             art_mod <- ARTool::art(formula = y ~ x, data = df0)
@@ -106,6 +114,7 @@ oneway_test <- function(
                     FUN.VALUE = numeric(length(unique(df0[["x"]])))
                 )
             )
+
             desc_df <- as.data.frame(desc_df)
             desc_df <- desc_df[order(desc_df[["median"]], decreasing = TRUE), ]
             group_comb <- utils::combn(rownames(desc_df), m = 2, simplify = FALSE)
@@ -117,8 +126,13 @@ oneway_test <- function(
                 gname1 <- group_comb[[i]][1]
                 gname2 <- group_comb[[i]][2]
 
-                gname1_2 <- sprintf("x%s - x%s", gname1, gname2)
-                gname2_1 <- sprintf("x%s - x%s", gname2, gname1)
+                gname1_2 <- sprintf("%s - %s", gname1, gname2)
+                gname2_1 <- sprintf("%s - %s", gname2, gname1)
+
+                if (insert_x_to_name) {
+                    gname1_2 <- sprintf("x%s - x%s", gname1, gname2)
+                    gname2_1 <- sprintf("x%s - x%s", gname2, gname1)
+                }
 
                 bool1 <- vapply(
                     X = art_c$contrast,

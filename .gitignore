@@ -17,3 +17,5 @@
 *.tiff
 
 trial*
+
+./pyenv
