@@ -24,7 +24,6 @@ oneway_test <- function(
     colnames(df0) <- c("y", "x")
 
     is_normal <- is_normality(df0, y ~ x)  # from "./utils.R"
-    # is_normal <- with(df0, is_normality(df0, get(y) ~ get(x)))  # from "./utils.R"
     is_balance <- !is_unbalance(df0, y ~ x)  # from "./utils.R"
     is_var_equal <- levene_test(df0, y ~ x)[["is_var_equal"]]  # from "./homoscedasticity.R"
 
@@ -83,12 +82,8 @@ oneway_test <- function(
             tests <- "Aligned Rank Transform (ART) + ART-Contrast"
             post_hoc <- list()
 
-            # If the group names start with numbers, then implement an "x" at the beginning
-            # group_name_first_character <- do.call(rbind, strsplit(as.character(df0$x), ""))[, 1]
-            df0_x <- strsplit(as.character(df0$x), "")
-            group_name_first_character <- vapply(df0_x, function(x) x[1], FUN.VALUE = character(1))
-
-            # insert_x_to_name <- !all(is.na(suppressWarnings(as.numeric(group_name_first_character))))
+            # If the group names start with numbers, then insert an "x" as the name prefix
+            group_name_first_character <- strtrim(as.character(df0$x), 1)
             insert_x_to_name <- any(could_be_number(group_name_first_character))
 
             if ( ! is.factor(df0$x) ) df0$x <- as.factor(df0$x)
