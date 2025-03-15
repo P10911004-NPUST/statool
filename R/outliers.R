@@ -22,14 +22,14 @@ is_outlier <- function(
         avg <- mean(x, trim = trim)
         ut <- stats::quantile(x, probs = 1 - (trim / 2), na.rm = TRUE)
         lt <- stats::quantile(x, probs = trim / 2, na.rm = TRUE)
-        res <- ( x > lt ) & ( x < ut )
+        res <- ( x < lt ) | ( x > ut )
         return(res)
     }
 
     .detect_with_sd <- function(x){
         ut <- center + n.sd * stdev
         lt <- center - n.sd * stdev
-        res <- ( x > lt ) & ( x < ut )
+        res <- ( x < lt ) | ( x > ut )
         return(res)
     }
 
@@ -37,7 +37,7 @@ is_outlier <- function(
         lt <- stats::quantile(x, lower_quantile)
         ut <- stats::quantile(x, upper_quantile)
         IQR <- ut - lt
-        res <- ( x > (lt - n.iqr * IQR) ) & ( x < (ut + n.iqr * IQR) )
+        res <- (x < (lt - n.iqr * IQR)) | (x > (ut + n.iqr * IQR))
         return(res)
     }
 
