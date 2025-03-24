@@ -1,3 +1,22 @@
+#' Title
+#'
+#' @param x A numeric vector
+#' @param method Detect the outliers with either standard deviation (sd), interquantile range (iqr), or mean (mean)
+#' @param n.iqr Default: 1.5
+#' @param n.sd Default: 3
+#' @param trim Default: 0.1
+#' @param lower_quantile Default: 0.2
+#' @param upper_quantile Default: 0.8
+#' @param use_median Default: TRUE
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' set.seed(1)
+#' x1 <- c(rnorm(5), 4)
+#' is_outlier(x1, method = "sd", n.sd = 2)
+#' #> FALSE FALSE FALSE FALSE FALSE  TRUE
 is_outlier <- function(
         x,
         method = "iqr",
@@ -6,7 +25,7 @@ is_outlier <- function(
         trim = 0.1,
         lower_quantile = 0.2,
         upper_quantile = 0.8,
-        use_median = FALSE
+        use_median = TRUE
 ){
 
     if (!is.null(dim(x))) stop("\nInput should be a vector\n")
@@ -47,3 +66,5 @@ is_outlier <- function(
 
     return(res)
 }
+
+
