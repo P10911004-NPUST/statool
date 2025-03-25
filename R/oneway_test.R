@@ -141,8 +141,6 @@ oneway_test <- function(
                     FUN.VALUE = logical(1)
                 )
 
-                bool <- bool1 | bool2
-
                 pval <- as.numeric(art_c[["p.value"]][bool1 | bool2])
 
                 cont_vct[i] <- paste(gname1, gname2, sep = " |vs| ")

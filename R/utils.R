@@ -43,6 +43,7 @@ could_be_number <- function(x)
     )
 
     ret[is.na(names(ret))] <- FALSE
+    ret[names(ret) %in% c("c", "C")] <- FALSE
     names(ret)[is.na(names(ret))] <- "NA"
     ret[names(ret) == "NaN"] <- FALSE
 
