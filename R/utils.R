@@ -23,31 +23,88 @@ sd_population <- function(x){
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # Data types ====
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-#' Check if the element in character strings could be numeric
-#' @param x Character strings
-#' @return Boolean values
+#' Check if the character could be numeric
+#' Check if the character could be numeric
+#'
+#' @param x A character vector
+#' @param include_L_sign (Default: TRUE). If TRUE, for example, "5L" will be considered as a number.
+#' @param exclude_infinite (Default: TRUE). If TRUE, for example, "Inf" will NOT be considered as a number.
+#' @param exclude_boolean (Default: TRUE). If TRUE, for example, "TRUE" will NOT be considered as a number.
+#'
+#' @return A boolean vector
 #' @export
+#'
 #' @examples
 #' x <- c("1a", ".7", "46", "2.3.3", "1.2r", "1.2", "1e4", "a1", "5L", "-.22", -Inf, NA, NaN)
-#' could_be_number(x)
+#' string_is_number(x)
 #' #>    1a    .7    46 2.3.3  1.2r   1.2   1e4    a1    5L  -.22  -Inf    NA   NaN
-#' #> FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE FALSE
-could_be_number <- function(x)
-{
-    ret <- sapply(x,
-        function(xs) {
-            out <- try(eval(parse(text = xs)), silent = TRUE)
-            out <- !inherits(out, "try-error")
-            return(out)
-        }
-    )
+#' #> FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE  FALSE FALSE FALSE
+string_is_number <- function(
+        x,
+        include_L_sign = TRUE,
+        exclude_infinite = TRUE,
+        exclude_boolean = TRUE
+){
+    if (!is.character(x)) warning("Input should be a string vector. Coerced to character.")
 
-    ret[is.na(names(ret))] <- FALSE
-    ret[names(ret) %in% c("c", "C")] <- FALSE
-    names(ret)[is.na(names(ret))] <- "NA"
-    ret[names(ret) == "NaN"] <- FALSE
+    `__x__` <- x
+    x <- as.character(x)
+
+    if (include_L_sign) {
+        x <- vapply(
+            x,
+            function(`_`) {
+                if (grepl("^\\d+L$", `_`)) {
+                    return(gsub("L", "", `_`))
+                } else {
+                    return(`_`)
+                }
+            },
+            FUN.VALUE = character(1)
+        )
+        x <- unname(x)
+    }
+
+    if (exclude_infinite)
+        x[is.infinite(x) | x %in% c("Inf", "-Inf")] <- NA_character_
+
+    if (exclude_boolean) {
+        x[isTRUE(x) | isFALSE(x) | x %in% c("TRUE", "FALSE")] <- NA_character_
+    } else {
+        x[x %in% c("TRUE", "FALSE")] <- "9"
+    }
+
+    ret <- suppressWarnings({
+        !is.na(as.numeric(x))
+    })
+    ret <- stats::setNames(ret, `__x__`)
 
     return(ret)
+    # ret <- vapply(
+    #     X = x,
+    #     FUN = function(`_x_`) {
+    #         out <- try(eval(parse(text = `_x_`)), silent = TRUE)
+    #         out <- !inherits(out, "try-error")
+    #         return(out)
+    #     },
+    #     FUN.VALUE = logical(1)
+    # )
+    # ret[is.na(names(ret))] <- FALSE
+    # ret[names(ret) %in% c("c", "C", "t", "F", "T")] <- FALSE
+    # names(ret)[is.na(names(ret))] <- "NA"
+    # ret[names(ret) == "NaN"] <- FALSE
+
+    test1 <- c(
+        "12", "-45.27", "0.19", "-.68", "000", "3e5", "60L",
+        "NA", "NaN", "Inf", "-Inf", "TRUE", "FALSE",
+        "a", "b", "c", "d", "t", "qwe", "q", "n",
+        "!", "|>", "$", "#", " ", "", "&", "|", "+", "-", "*", "\\"
+    )
+    string_is_number(test1)
+
+    test2 <- c(12, -45.27, 0.19, .68, 000, 3e5, 60L,
+               NA, NaN, Inf, -Inf, TRUE, FALSE)
+    setNames(string_is_number(test2), test2)
 }
 
 
@@ -55,14 +112,11 @@ could_be_number <- function(x)
 # Data structure ====
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #' Check vector
-#'
 #' Check if an object is a vector.
 #'
 #' @param x An object
 #'
-#' @return
-#' Boolean value
-#'
+#' @return Boolean value
 #' @export
 #'
 #' @examples
@@ -72,13 +126,10 @@ could_be_number <- function(x)
 #' is_vector(list(a = c(1, 2, 3), b = c("a", "b", "c")))
 #' #> FALSE
 is_vector <- function(x) { base::is.null(base::dim(x)) & base::is.atomic(x) }
-is_not_vector <- function(x) { !(base::is.null(base::dim(x)) & base::is.atomic(x)) }
 
 is_list <- function(x) { base::is.list(x) & !base::is.atomic(x) & "list" %in% base::class(x) }
-is_not_list <- function(x) { !(base::is.list(x) & !base::is.atomic(x) & "list" %in% base::class(x)) }
 
 is_dataframe <- function(x) { base::length(base::dim(x)) > 1 & base::is.data.frame(x) }
-is_not_dataframe <- function(x) { !(base::length(base::dim(x)) == 2 & base::is.data.frame(x)) }
 
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -153,7 +204,7 @@ list_to_dataframe <- function(data, formula = NULL)
     lst <- data
     max_n <- base::max(base::sapply(lst, length))
 
-    if (is_not_list(lst)) stop("Input `data` should be a list")
+    if (!is_list(lst)) stop("Input `data` should be a list")
     if (base::is.null(base::names(lst))) base::names(lst) <- base::seq_along(lst)
 
     if (base::is.null(formula))

@@ -2,7 +2,8 @@
 % Please edit documentation in R/utils.R
 \name{is_vector}
 \alias{is_vector}
-\title{Check vector}
+\title{Check vector
+Check if an object is a vector.}
 \usage{
 is_vector(x)
 }
@@ -13,6 +14,7 @@ is_vector(x)
 Boolean value
 }
 \description{
+Check vector
 Check if an object is a vector.
 }
 \examples{

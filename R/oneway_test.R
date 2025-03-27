@@ -1,4 +1,6 @@
-#' Title
+#' One-way test
+#' Automatically performs one-way test with appropriate method, according to the data distribution
+#' and homoscedasticity.
 #'
 #' @param data A data frame in which the variables specified in the formula will be found.
 #' @param formula A formula specifying the model.
@@ -9,6 +11,30 @@
 #' @return A list, contains omnibus test and post-hoc test results.
 #' @import ARTool stats utils
 #' @export
+#'
+#' @examples
+#' set.seed(1)
+#' df0 <- data.frame(
+#'     group = rep(c("A", "B", "C"), each = 10),
+#'     norm_data = c(rnorm(10, -1, 2), rnorm(10, 3, 2), rnorm(10, 0, 1.5)),
+#'     skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+#' )
+#'
+#' out <- oneway_test(df0, skew_data ~ group)
+#' res <- out$result
+#' res
+#' #>   GROUPS  N       AVG        SD       MED        MIN       MAX CLD
+#' #> A      A 10 6.9585396 1.6171293 7.3131184 4.48264090 9.9541191   a
+#' #> C      C 10 0.5674507 0.2713306 0.6236108 0.05893438 0.8762692   b
+#' #> B      B 10 0.4053906 0.2437230 0.3626733 0.12169192 0.7570871   b
+#'
+#' out <- oneway_test(df0, norm_data ~ group)
+#' res <- out$result
+#' res
+#' #>   GROUPS  N        AVG       SD         MED       MIN      MAX CLD
+#' #> B      B 10  3.4976899 2.139030  3.98374456 -1.429400 6.023562   a
+#' #> C      C 10 -0.2005099 1.433411  0.01382718 -2.984028 1.378466   b
+#' #> A      A 10 -0.7355944 1.561172 -0.48684890 -2.671257 2.190562   b
 oneway_test <- function(
         data,
         formula,
@@ -84,7 +110,7 @@ oneway_test <- function(
 
             # If the group names start with numbers, then insert an "x" as the name prefix
             group_name_first_character <- strtrim(as.character(df0$x), 1)
-            insert_x_to_name <- any(could_be_number(group_name_first_character))
+            insert_x_to_name <- any(string_is_number(group_name_first_character))
 
             if ( ! is.factor(df0$x) ) df0$x <- as.factor(df0$x)
 
@@ -201,6 +227,18 @@ oneway_test <- function(
     )
 
     return(ret)
+
+    # Testing
+    set.seed(1)
+    df0 <- data.frame(
+        group = rep(c("A", "B", "C"), each = 10),
+        norm_data = c(rnorm(10, -1, 2), rnorm(10, 3, 2), rnorm(10, 0, 1.5)),
+        skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+    )
+
+    out <- oneway_test(df0, skew_data ~ group)
+    res <- out$result
+    res
 }
 
 

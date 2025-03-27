@@ -9,7 +9,7 @@
 #' @param upper_quantile Default: 0.8
 #' @param use_median Default: TRUE
 #'
-#' @return
+#' @return A boolean vector
 #' @export
 #'
 #' @examples

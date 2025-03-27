@@ -32,6 +32,9 @@ is_outlier(
 
 \item{use_median}{Default: TRUE}
 }
+\value{
+A boolean vector
+}
 \description{
 Title
 }
