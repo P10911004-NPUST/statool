@@ -114,7 +114,7 @@ Tukey_HSD_test <- function(
 
     # Output ====
     desc_df <- data.frame(
-        GROUPS = group_names,
+        GROUP = group_names,
         N = group_sizes,
         AVG = group_means,
         SD = desc_mat[, "sd"],

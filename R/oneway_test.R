@@ -5,7 +5,7 @@
 #' @param data A data frame in which the variables specified in the formula will be found.
 #' @param formula A formula specifying the model.
 #' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
-#' @param p_adjust_method Character string (default: "none"). Other options: `stats::p.adjust.methods`.
+#' @param p_adjust_method Character string (default: "holm"). Other options: `stats::p.adjust.methods`.
 #' @param use_art Whether using aligned rank transform. Default: TRUE
 #'
 #' @return A list, contains omnibus test and post-hoc test results.
@@ -183,7 +183,7 @@ oneway_test <- function(
 
             result <- data.frame(
                 row.names = row.names(desc_df),
-                GROUPS = row.names(desc_df),
+                GROUP = row.names(desc_df),
                 N = desc_df[["length"]],
                 AVG = desc_df[["mean"]],
                 SD = desc_df[["sd"]],
@@ -219,6 +219,9 @@ oneway_test <- function(
         }
     }
 
+    ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    ## Output ====
+    ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ret <- list(
         pre_hoc = pre_hoc,
         result = post_hoc$result,

@@ -4,16 +4,16 @@
 \alias{Dunn_test}
 \title{Dunn's test}
 \usage{
-Dunn_test(data, formula, alpha = 0.05, p_adjust_method = "bonferroni")
+Dunn_test(data, formula, alpha = 0.05, p_adjust_method = "holm")
 }
 \arguments{
 \item{data}{A data frame in which the variables specified in the formula will be found.}
 
 \item{formula}{A formula specifying the model.}
 
-\item{alpha}{Numeric value range from 0 to 1 (default: 0.05). The error tolerance.}
+\item{alpha}{Numeric value range from 0 to 1 (Default: 0.05).}
 
-\item{p_adjust_method}{Character string (default: "none"). Other options: \code{stats::p.adjust.methods}.}
+\item{p_adjust_method}{Character string (default: "holm"). Other options: \code{stats::p.adjust.methods}.}
 }
 \value{
 A list with two vectors. \
@@ -24,6 +24,22 @@ A list with two vectors. \
 }
 \description{
 Represent significance statements resulting from all-pairwise comparisons.
+}
+\examples{
+set.seed(1)
+df0 <- data.frame(
+    group = rep(c("A", "B", "C"), each = 10),
+    norm_data = c(rnorm(10, -1, 2), rnorm(10, 3, 2), rnorm(10, 0, 1.5)),
+    skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+)
+
+out <- Dunn_test(df0, skew_data ~ group)
+res <- out$result
+res
+#>   GROUPS  N  AVG       SD  MED MIN MAX CLD
+#> 1      A 10 25.5 3.027650 25.5  21  30   a
+#> 2      C 10 12.5 6.258328 12.5   1  20   b
+#> 3      B 10  8.5 5.082650  7.5   2  16   b
 }
 \references{
 Dunn, O.J., 1964.
