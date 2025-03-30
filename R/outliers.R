@@ -68,3 +68,12 @@ is_outlier <- function(
 }
 
 
+Grubb_test <- function(x)
+{
+    cat("Not yet")
+}
+
+ROUT_test <- function(x)
+{
+    cat("Not yet")
+}

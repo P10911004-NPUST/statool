@@ -26,22 +26,20 @@ Fisher_LSD_test <- function(
 ){
     p_adjust_method <- match.arg(p_adjust_method, stats::p.adjust.methods)
 
-    y_name <- as.character(formula)[2]
-    x_name <- as.character(formula)[3]
+    df0 <- stats::model.frame(formula = formula, data = data, drop.unused.levels = TRUE)
+    colnames(df0) <- c("y", "x")
+    df0 <- df0[ !is.na(df0$y), ]
 
-    df0 <- data.frame(
-        y = data[[y_name]],
-        x = data[[x_name]]
-    )
-
-    df0 <- df0[!is.na(df0$y), ]
+    n_fct <- length(unique(df0$x))
+    if (n_fct < 3) stop("Factor levels should be more than 2.")
 
     # Descriptive ====
     desc_mat <- with(
         data = df0,
-        expr = sapply(
+        expr = vapply(
             X = c("length", "mean", "sd", "median", "min", "max"),
-            FUN = function(fns) tapply(y, x, fns)
+            FUN = function(fns) tapply(y, x, fns),
+            FUN.VALUE = numeric(n_fct)
         )
     )
 

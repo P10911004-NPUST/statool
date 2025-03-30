@@ -257,11 +257,11 @@ outer2 <- function(x, FUN = "paste", drop = TRUE)
 #' @examples
 #' library(ggplot2)
 #' data("iris")
-#' res <- statool::oneway_test(iris, Sepal.Length ~ Species)
-#' cld <- res$result
-#' cld$y_pos <- estimate_cld_pos(cld$MAX)
-#' print(cld)
-#' #>                GROUPS  N   AVG        SD MED MIN MAX CLD y_pos
+#' res <- oneway_test(iris, Sepal.Length ~ Species)
+#' res <- res$result
+#' res$y_pos <- estimate_cld_pos(res$MAX)
+#' print(res)
+#' #>                 GROUP  N   AVG        SD MED MIN MAX CLD y_pos
 #' #> virginica   virginica 50 6.588 0.6358796 6.5 4.9 7.9   a 9.286
 #' #> versicolor versicolor 50 5.936 0.5161711 5.9 4.9 7.0   b 8.386
 #' #> setosa         setosa 50 5.006 0.3524897 5.0 4.3 5.8   c 7.186
@@ -271,8 +271,8 @@ outer2 <- function(x, FUN = "paste", drop = TRUE)
 #'     geom_point() +
 #'     geom_text(
 #'         inherit.aes = FALSE,
-#'         data = cld,
-#'         mapping = aes(GROUPS, y_pos, label = CLD)
+#'         data = res,
+#'         mapping = aes(GROUP, y_pos, label = CLD)
 #'     )
 estimate_cld_pos <- function(x)
 {

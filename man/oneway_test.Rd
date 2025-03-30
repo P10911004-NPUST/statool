@@ -21,7 +21,7 @@ oneway_test(
 
 \item{alpha}{Numeric value range from 0 to 1 (default: 0.05). The error tolerance.}
 
-\item{p_adjust_method}{Character string (default: "none"). Other options: \code{stats::p.adjust.methods}.}
+\item{p_adjust_method}{Character string (default: "holm"). Other options: \code{stats::p.adjust.methods}.}
 
 \item{use_art}{Whether using aligned rank transform. Default: TRUE}
 }

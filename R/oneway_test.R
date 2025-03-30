@@ -61,6 +61,7 @@ oneway_test <- function(
         pre_hoc <- stats::oneway.test(y ~ x, df0, var.equal = is_var_equal)
         pre_hoc_pass <- pre_hoc$p.value < alpha
 
+        ### Tukey-HSD ================
         if (is_var_equal & is_balance)
         {
             tests <- "Fisher's ANOVA + Tukey-HSD test"
@@ -68,10 +69,11 @@ oneway_test <- function(
                 data = df0,
                 formula = y ~ x,
                 alpha = alpha,
-                p_adjust_method = p_adjust_method
+                p_adjust_method = "none"
             )
         }
 
+        ### Tukey-Kramer ==============
         if (is_var_equal & !is_balance)
         {
             tests <- "Fisher's ANOVA + Tukey-Kramer test"
@@ -79,10 +81,11 @@ oneway_test <- function(
                 data = df0,
                 formula = y ~ x,
                 alpha = alpha,
-                p_adjust_method = p_adjust_method
+                p_adjust_method = "none"
             )
         }
 
+        ### Games-Howell ==============
         if ( ! is_var_equal )
         {
             tests <- "Welch's ANOVA + Games-Howell test"
@@ -90,7 +93,7 @@ oneway_test <- function(
                 data = df0,
                 formula = y ~ x,
                 alpha = alpha,
-                p_adjust_method = p_adjust_method
+                p_adjust_method = "none"
             )
         }
     }
@@ -231,7 +234,9 @@ oneway_test <- function(
 
     return(ret)
 
-    # Testing
+    ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    ## Testing ====
+    ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     set.seed(1)
     df0 <- data.frame(
         group = rep(c("A", "B", "C"), each = 10),

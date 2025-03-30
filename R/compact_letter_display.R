@@ -166,7 +166,6 @@ compact_letter_display <- function(
 }
 
 
-cld <- compact_letter_display
 
 
 
