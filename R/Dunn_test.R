@@ -66,15 +66,16 @@ Dunn_test <- function(
     group_comparisons <- outer2(group_names, function(x1, x2) paste(x1, x2, sep = " |vs| "))
     group_n <- outer2(group_sizes, function(x1, x2) paste(x1, x2, sep = "|"))
     group_diffs <- stats::setNames(outer2(group_means, "-"), group_comparisons) # outer2() <<< ./utils.R
-    n <- sum(group_sizes)
+
+    total_N <- sum(group_sizes)
 
     .ties_correction <- function(x){
         ties_num <- table(x)
-        res <- sum( ties_num ^ 3 - ties_num ) / ( 12 * (n - 1) )
+        res <- sum( ties_num ^ 3 - ties_num ) / ( 12 * (total_N - 1) )
         return(res)
     }
 
-    block_A <- ( n * (n + 1) ) / 12
+    block_A <- ( total_N * (total_N + 1) ) / 12
     block_B <- .ties_correction(df0$y)
     block_C <- outer2( group_sizes, function(x1, x2) {( (1 / x1) + (1 / x2) )} )
 
@@ -155,9 +156,6 @@ Dunn_test <- function(
     out <- Dunn_test(df0, skew_data ~ group)
     res <- out$result
     res
-
-    out$comparisons
-    rstatix::dunn_test(df0, skew_data ~ group)
 }
 
 

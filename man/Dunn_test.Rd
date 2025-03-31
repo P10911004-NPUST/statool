@@ -36,10 +36,10 @@ df0 <- data.frame(
 out <- Dunn_test(df0, skew_data ~ group)
 res <- out$result
 res
-#>   GROUPS  N  AVG       SD  MED MIN MAX CLD
-#> 1      A 10 25.5 3.027650 25.5  21  30   a
-#> 2      C 10 12.5 6.258328 12.5   1  20   b
-#> 3      B 10  8.5 5.082650  7.5   2  16   b
+#>   GROUP  N       AVG        SD       MED        MIN       MAX CLD
+#> 1     A 10 6.9585396 1.6171293 7.3131184 4.48264090 9.9541191   a
+#> 2     C 10 0.5674507 0.2713306 0.6236108 0.05893438 0.8762692   b
+#> 3     B 10 0.4053906 0.2437230 0.3626733 0.12169192 0.7570871   b
 }
 \references{
 Dunn, O.J., 1964.
