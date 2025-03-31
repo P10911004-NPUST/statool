@@ -19,6 +19,49 @@ sd_population <- function(x){
     return(ret)
 }
 
+summarize <- function(data, formula)
+{
+    df0 <- stats::model.frame(formula = formula, data = data)
+    colnames(df0) <- c("y", "x")
+    df0 <- df0[!is.na(df0$y), , drop = FALSE]
+
+    n_fct_lvl <- length(unique(df0$x))
+
+    desc_mat <- with(
+        data = df0,
+        expr = vapply(
+            X = c("sum", "length", "mean", "sd", "median", "min", "max"),
+            FUN = function(fns) tapply(y, x, fns),
+            FUN.VALUE = numeric(n_fct_lvl)
+        )
+    )
+
+    return(desc_mat)
+}
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# Formula ====
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+formula_response <- function(formula)
+{
+    f_terms <- stats::terms(stats::as.formula(formula))
+    response <- as.character(attr(f_terms, "variables"))[2]
+    return(response)
+}
+
+formula_factor <- function(formula)
+{
+    f_terms <- stats::terms(stats::as.formula(formula))
+    fcts <- as.character(attr(f_terms, "variables"))[-(1:2)]
+    return(fcts)
+}
+
+formula_term <- function(formula)
+{
+    f_terms <- stats::terms(stats::as.formula(formula))
+    ret <- as.character(attr(f_terms, "term.labels"))
+    return(ret)
+}
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # Data types ====

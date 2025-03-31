@@ -7,9 +7,9 @@
 Games_Howell_test(data, formula, alpha = 0.05, p_adjust_method = "none")
 }
 \arguments{
-\item{data}{A data frame in which the variables specified in the formula will be found.}
+\item{data}{A data frame.}
 
-\item{formula}{A formula specifying the model.}
+\item{formula}{A formula specifying the model, for example, yield ~ fertilizer_level.}
 
 \item{alpha}{Numeric value range from 0 to 1 (default: 0.05). The error tolerance.}
 
@@ -24,6 +24,22 @@ A list with two vectors.
 }
 \description{
 Represent significance statements resulting from all-pairwise comparisons (when group variances are unequal).
+}
+\examples{
+set.seed(1)
+df0 <- data.frame(
+    group = rep(c("A", "B", "C"), each = 10),
+    norm_data = c(rnorm(10, -1, 3), rnorm(10, 3, 1), rnorm(10, 0, 1)),
+    skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+)
+
+out <- Games_Howell_test(df0, norm_data ~ group)
+res <- out$result
+res
+#>   GROUP  N        AVG        SD          MED        MIN       MAX CLD
+#> 1     B 10  3.2488450 1.0695148  3.491872279  0.7853001 4.5117812   a
+#> 2     C 10 -0.1336732 0.9556076  0.009218122 -1.9893517 0.9189774   b
+#> 3     A 10 -0.6033917 2.3417579 -0.230273356 -3.5068858 3.7858424   b
 }
 \references{
 Howell, D.C. 2013.

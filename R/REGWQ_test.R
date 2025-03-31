@@ -58,8 +58,8 @@ REGWQ_test <- function(
     colnames(df0) <- c("y", "x")
     df0 <- df0[ !is.na(df0$y), ]
 
-    n_fct <- length(unique(df0$x))
-    if (n_fct < 3) stop("Factor levels should be more than 2.")
+    n_fct_lvl <- length(unique(df0$x))
+    if (n_fct_lvl < 3) warning("Factor levels should be more than 2.")
 
     # Descriptive ====
     desc_mat <- with(
@@ -67,7 +67,7 @@ REGWQ_test <- function(
         expr = vapply(
             X = c("length", "mean", "sd", "median", "min", "max"),
             FUN = function(fns) tapply(y, x, fns),
-            FUN.VALUE = numeric(n_fct)
+            FUN.VALUE = numeric(n_fct_lvl)
         )
     )
 

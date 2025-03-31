@@ -45,8 +45,8 @@ oneway_test <- function(
     p_adjust_method <- match.arg(p_adjust_method, stats::p.adjust.methods)
 
     df0 <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
-    y <- colnames(df0)[1]
-    x <- colnames(df0)[2]
+    # y <- colnames(df0)[1]
+    # x <- colnames(df0)[2]
     colnames(df0) <- c("y", "x")
 
     is_normal <- is_normality(df0, y ~ x)  # from "./utils.R"

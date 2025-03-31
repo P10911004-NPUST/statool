@@ -31,10 +31,10 @@
 #' out <- Dunn_test(df0, skew_data ~ group)
 #' res <- out$result
 #' res
-#' #>   GROUPS  N  AVG       SD  MED MIN MAX CLD
-#' #> 1      A 10 25.5 3.027650 25.5  21  30   a
-#' #> 2      C 10 12.5 6.258328 12.5   1  20   b
-#' #> 3      B 10  8.5 5.082650  7.5   2  16   b
+#' #>   GROUP  N       AVG        SD       MED        MIN       MAX CLD
+#' #> 1     A 10 6.9585396 1.6171293 7.3131184 4.48264090 9.9541191   a
+#' #> 2     C 10 0.5674507 0.2713306 0.6236108 0.05893438 0.8762692   b
+#' #> 3     B 10 0.4053906 0.2437230 0.3626733 0.12169192 0.7570871   b
 Dunn_test <- function(
         data,
         formula,
@@ -51,24 +51,18 @@ Dunn_test <- function(
     if (is_normality(df0, y ~ x))  # is_normality() <<< ./normality.R
         warning("The response variable follows a normal distribution.")
 
-    n_fct <- length(unique(df0$x))
-    if (n_fct < 3) stop("Factor levels should be more than 2.")
+    n_fct_lvl <- length(unique(df0$x))
+    if (n_fct_lvl < 3) stop("Factor levels should be more than 2.")
 
-    df0$y <- rank(df0$y)
+    df0$ranked_y <- rank(df0$y)
 
-    desc_mat <- with(
-        data = df0,
-        expr = vapply(
-            X = c("sum", "length", "mean", "sd", "median", "min", "max"),
-            FUN = function(fns) tapply(y, x, fns),
-            FUN.VALUE = numeric(n_fct)
-        )
-    )
+    desc_mat <- summarize(df0, ranked_y ~ x)  # summarize() <<< utils.R
     desc_mat <- desc_mat[order(desc_mat[, "mean"], decreasing = TRUE), ]
 
     group_means <- desc_mat[, "mean"]
     group_sizes <- desc_mat[, "length"]
     group_names <- names(group_means)
+
     group_comparisons <- outer2(group_names, function(x1, x2) paste(x1, x2, sep = " |vs| "))
     group_n <- outer2(group_sizes, function(x1, x2) paste(x1, x2, sep = "|"))
     group_diffs <- stats::setNames(outer2(group_means, "-"), group_comparisons) # outer2() <<< ./utils.R
@@ -109,17 +103,23 @@ Dunn_test <- function(
     )
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    ## DO NOT use ranked data in the descriptive table (use `y` rather than `ranked_y`)
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    desc_mat2 <- summarize(df0, y ~ x)  # summarize() <<< utils.R
+    desc_mat2 <- desc_mat2[match(rownames(desc_mat2), group_names), ]
+
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Output ====
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     desc_df <- data.frame(
         row.names = NULL,
         GROUP = group_names,
         N = group_sizes,
-        AVG = group_means,
-        SD = desc_mat[, "sd"],
-        MED = desc_mat[, "median"],
-        MIN = desc_mat[, "min"],
-        MAX = desc_mat[, "max"],
+        AVG = desc_mat2[, "mean"],
+        SD = desc_mat2[, "sd"],
+        MED = desc_mat2[, "median"],
+        MIN = desc_mat2[, "min"],
+        MAX = desc_mat2[, "max"],
         CLD = group_cld
     )
 
@@ -152,10 +152,12 @@ Dunn_test <- function(
         skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
     )
 
-    out <- Dunn_test(df0, norm_data ~ group)
+    out <- Dunn_test(df0, skew_data ~ group)
     res <- out$result
     res
 
+    out$comparisons
+    rstatix::dunn_test(df0, skew_data ~ group)
 }
 
 
