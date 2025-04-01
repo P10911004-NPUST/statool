@@ -118,6 +118,7 @@ Tukey_Kramer_test <- function(
 
     # Output ====
     desc_df <- data.frame(
+        row.names = NULL,
         GROUP = group_names,
         N = group_sizes,
         AVG = group_means,

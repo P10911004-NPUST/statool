@@ -33,7 +33,7 @@
 #' )
 #'
 #' stats_res <- REGWQ_test(rawdata, val ~ group)
-#' stats_res[["result"]]["CLD"]
+#' stats_res$result
 #' #>    GROUPS N    AVG       SD  MED MIN MAX CLD
 #' #> m2     m2 8 78.625 12.80555 81.0  52  92   a
 #' #> m3     m3 8 78.000 12.82854 81.0  58  98   a

@@ -5,7 +5,10 @@
 #' @param data A data frame in which the variables specified in the formula will be found.
 #' @param formula A formula specifying the model.
 #' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
-#' @param p_adjust_method A character string (default: "none"). Other options: `stats::p.adjust.methods`.
+#' @param p_adjust_method
+#' A character string indicating which method to use for p-value adjustment (default: "none").
+#' For Tukey-HSD, this option should always be "none", and the calculated padj is "Tukey-adjusted p-value".
+#' Other options: `stats::p.adjust.methods` (NOT recommended).
 #'
 #' @return A list with two vectors.
 #' 1. result: consists of descriptive statistics and compact letter display;
@@ -112,6 +115,7 @@ Tukey_HSD_test <- function(
 
     # Output ====
     desc_df <- data.frame(
+        row.names = NULL,
         GROUP = group_names,
         N = group_sizes,
         AVG = group_means,
@@ -141,6 +145,26 @@ Tukey_HSD_test <- function(
     )
 
     return(res)
+
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    ## Testing ====
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    # set.seed(1)
+    # df0 <- data.frame(
+    #     group = as.factor(rep(c("A", "B", "C"), each = 10)),
+    #     norm_data = c(rnorm(10, -1, 2), rnorm(10, 3, 2), rnorm(10, 0, 2)),
+    #     skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+    # )
+    #
+    # out <- Tukey_HSD_test(df0, norm_data ~ group)
+    # out$comparisons
+    # # stats::TukeyHSD(aov(norm_data ~ group, df0))
+    #
+    # art_mod <- ARTool::art(norm_data ~ group, df0)
+    # ARTool::art.con(art_mod, "group")
+    #
+    # res <- out$result
+    # res
 }
 
 

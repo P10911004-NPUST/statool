@@ -16,8 +16,7 @@ numeric values (y-axis position)
 Estimate the suitable compact letter y-position used in the ggplot boxplot
 }
 \examples{
-library(ggplot2)
-data("iris")
+utils::data("iris", package = "datasets")
 res <- oneway_test(iris, Sepal.Length ~ Species)
 res <- res$result
 res$y_pos <- estimate_cld_pos(res$MAX)
@@ -26,13 +25,4 @@ print(res)
 #> virginica   virginica 50 6.588 0.6358796 6.5 4.9 7.9   a 9.286
 #> versicolor versicolor 50 5.936 0.5161711 5.9 4.9 7.0   b 8.386
 #> setosa         setosa 50 5.006 0.3524897 5.0 4.3 5.8   c 7.186
-
-ggplot(iris, aes(Species, Sepal.Length, color = Species)) +
-    geom_boxplot() +
-    geom_point() +
-    geom_text(
-        inherit.aes = FALSE,
-        data = res,
-        mapping = aes(GROUP, y_pos, label = CLD)
-    )
 }

@@ -36,6 +36,8 @@ summarize <- function(data, formula)
         )
     )
 
+    # colnames(desc_mat) <- c("SUM", "N", "AVG", "SD", "MED", "MIN", "MAX")
+
     return(desc_mat)
 }
 
@@ -295,11 +297,11 @@ outer2 <- function(x, FUN = "paste", drop = TRUE)
 #' Estimate the suitable compact letter y-position used in the ggplot boxplot
 #' @param x The maximum values of each groups
 #' @return numeric values (y-axis position)
-#' @importFrom ggplot2 ggplot aes geom_boxplot geom_point geom_text
 #' @export
+#' @importFrom utils data
+#' @import datasets
 #' @examples
-#' library(ggplot2)
-#' data("iris")
+#' utils::data("iris", package = "datasets")
 #' res <- oneway_test(iris, Sepal.Length ~ Species)
 #' res <- res$result
 #' res$y_pos <- estimate_cld_pos(res$MAX)
@@ -308,15 +310,6 @@ outer2 <- function(x, FUN = "paste", drop = TRUE)
 #' #> virginica   virginica 50 6.588 0.6358796 6.5 4.9 7.9   a 9.286
 #' #> versicolor versicolor 50 5.936 0.5161711 5.9 4.9 7.0   b 8.386
 #' #> setosa         setosa 50 5.006 0.3524897 5.0 4.3 5.8   c 7.186
-#'
-#' ggplot(iris, aes(Species, Sepal.Length, color = Species)) +
-#'     geom_boxplot() +
-#'     geom_point() +
-#'     geom_text(
-#'         inherit.aes = FALSE,
-#'         data = res,
-#'         mapping = aes(GROUP, y_pos, label = CLD)
-#'     )
 estimate_cld_pos <- function(x)
 {
     x <- stats::na.omit(x)
@@ -327,111 +320,5 @@ estimate_cld_pos <- function(x)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-# #> Plot a boxplot with compact letter display (cld)
-# #> The cld should be a named vector, for example, c(level_01 = "a", level_02 = "b")
-# show_boxplot <- function(
-        #         data,
-#         formula,
-#         cld = NULL,
-#         color = NULL,
-#         point_size = 3,
-#         triangle_size = 3,
-#         letter_size = 8,
-#         letter_pos_adjust = 0,
-#         x_label_order = NULL
-# ){
-#     x_name <- as.character(formula)[3]
-#     y_name <- as.character(formula)[2]
-#
-#     df0 <- data.frame(
-#         x = data[[x_name]],
-#         y = data[[y_name]]
-#     )
-#
-#     if (is.null(x_label_order)) x_label_order <- sort(unique(as.character(df0$x)))
-#     factor_missing <- any(!(x_label_order %in% unique(df0$x)))
-#     if (factor_missing) warning("Factor not match")
-#     df0$x <- factor(df0$x, levels = x_label_order)
-#
-#     if (!is.null(color)) df0$color <- data[[color]]
-#
-#     p1 <- ggplot(df0, aes(x, y, color = color)) +
-#         theme_bw() +
-#         labs(
-#             x = sym(x_name),
-#             y = sym(y_name)
-#         ) +
-#         geom_point(
-#             size = point_size,
-#             position = position_jitter(width = 0.1),
-#             alpha = 0.5,
-#             show.legend = FALSE
-#         ) +
-#         geom_boxplot(
-#             outliers = FALSE,
-#             outlier.colour = "transparent",
-#             outlier.size = 0,
-#             outlier.shape = NA,
-#             fill = NA,
-#             size = 1,
-#             linewidth = 0.5
-#         ) +
-#         stat_summary(
-#             geom = "point",
-#             fun = "mean",
-#             size = triangle_size,
-#             color = "black",
-#             shape = 17,
-#             alpha = 0.7
-#         ) +
-#         theme(
-#             text = element_text(family = "sans", face = "bold", size = 21),
-#             axis.title.x.bottom = element_text(margin = ggplot2::margin(t = 9)),
-#             axis.title.y.left = element_text(margin = ggplot2::margin(r = 9)),
-#             legend.position = "none"
-#         )
-#
-#     if (!is.null(cld)){
-#         cld <- data.frame(
-#             x = names(cld),
-#             letter = unname(cld)
-#         )
-#
-#         letter_pos <- df0 %>%
-#             summarise(
-#                 letter_pos = estimate_letter_pos(y),
-#                 .by = x
-#             ) %>%
-#             left_join(cld, by = "x")
-#
-#         # letter_pos$letter <- unname(cld[match(names(cld), letter_pos[["x"]])])
-#
-#         p1 <- p1  +
-#             geom_text(
-#                 data = letter_pos,
-#                 mapping = aes(x, letter_pos + letter_pos_adjust, label = letter),
-#                 inherit.aes = FALSE,
-#                 size = letter_size
-#             )
-#     }
-#
-#     return(p1)
-# }
 
 

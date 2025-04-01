@@ -9,8 +9,10 @@
 #' @param use_art Whether using aligned rank transform. Default: TRUE
 #'
 #' @return A list, contains omnibus test and post-hoc test results.
-#' @import ARTool stats utils
+#' @import stats
 #' @export
+#'
+#' @author Joon-Keat Lai
 #'
 #' @examples
 #' set.seed(1)
@@ -108,96 +110,13 @@ oneway_test <- function(
         ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (use_art)
         {
-            tests <- "Aligned Rank Transform (ART) + ART-Contrast"
-            post_hoc <- list()
-
-            # If the group names start with numbers, then insert an "x" as the name prefix
-            group_name_first_character <- strtrim(as.character(df0$x), 1)
-            insert_x_to_name <- any(string_is_number(group_name_first_character))
-
-            if ( ! is.factor(df0$x) ) df0$x <- as.factor(df0$x)
-
-            art_mod <- ARTool::art(formula = y ~ x, data = df0)
-            pre_hoc <- stats::anova(art_mod)
-            pre_hoc_pass <- pre_hoc$`Pr(>F)` < alpha
-
-            art_c <- ARTool::art.con(
-                m = art_mod,
-                formula = ~ x,
-                adjust = p_adjust_method
+            out <- art_1(df0, y ~ x)  # art_1() <<< aligned_rank_transform.R
+            tests <- out$tests
+            pre_hoc <- out$pre_hoc
+            post_hoc <- list(
+                result = out$result,
+                comparisons = out$comparisons
             )
-            tmp_art_c <- art_c
-            art_c <- as.data.frame(art_c)
-
-            #### Tidy-up contrasts
-            desc_df <- with(
-                data = df0,
-                expr = vapply(
-                    X = c("length", "mean", "sd", "min", "max", "median"),
-                    FUN = function(fns) tapply(y, x, fns),
-                    FUN.VALUE = numeric(length(unique(df0[["x"]])))
-                )
-            )
-
-            desc_df <- as.data.frame(desc_df)
-            desc_df <- desc_df[order(desc_df[["median"]], decreasing = TRUE), ]
-            group_comb <- utils::combn(rownames(desc_df), m = 2, simplify = FALSE)
-
-            cont_vct <- vector("character", length = length(group_comb))
-            pval_vct <- vector("numeric", length = length(group_comb))
-
-            for (i in seq_along(group_comb)) {
-                gname1 <- group_comb[[i]][1]
-                gname2 <- group_comb[[i]][2]
-
-                gname1_2 <- sprintf("%s - %s", gname1, gname2)
-                gname2_1 <- sprintf("%s - %s", gname2, gname1)
-
-                if (insert_x_to_name) {
-                    gname1_2 <- sprintf("x%s - x%s", gname1, gname2)
-                    gname2_1 <- sprintf("x%s - x%s", gname2, gname1)
-                }
-
-                bool1 <- vapply(
-                    X = art_c$contrast,
-                    FUN = function(x) identical(x, gname1_2),
-                    FUN.VALUE = logical(1)
-                )
-
-                bool2 <- vapply(
-                    X = art_c$contrast,
-                    FUN = function(x) identical(x, gname2_1),
-                    FUN.VALUE = logical(1)
-                )
-
-                pval <- as.numeric(art_c[["p.value"]][bool1 | bool2])
-
-                cont_vct[i] <- paste(gname1, gname2, sep = " |vs| ")
-                pval_vct[i] <- pval
-            }
-
-            cld_res <- compact_letter_display(
-                groups = row.names(desc_df),
-                means = desc_df[["median"]],
-                comparisons = cont_vct,
-                pval = pval_vct,
-                alpha = alpha
-            )
-
-            result <- data.frame(
-                row.names = row.names(desc_df),
-                GROUP = row.names(desc_df),
-                N = desc_df[["length"]],
-                AVG = desc_df[["mean"]],
-                SD = desc_df[["sd"]],
-                MED = desc_df[["median"]],
-                MIN = desc_df[["min"]],
-                MAX = desc_df[["max"]],
-                CLD = unname(cld_res)
-            )
-
-            post_hoc$result <- result
-            post_hoc$comparisons <- art_c
         }
 
         ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -228,7 +147,7 @@ oneway_test <- function(
     ret <- list(
         pre_hoc = pre_hoc,
         result = post_hoc$result,
-        comparison = post_hoc$comparisons,
+        comparisons = post_hoc$comparisons,
         tests = tests
     )
 
@@ -251,4 +170,216 @@ oneway_test <- function(
 
 
 
-
+# `_oneway_test` <- function(
+#         data,
+#         formula,
+#         alpha = 0.05,
+#         p_adjust_method = "holm",
+#         use_art = TRUE
+# ){
+#     p_adjust_method <- match.arg(p_adjust_method, stats::p.adjust.methods)
+#
+#     df0 <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
+#     # y <- colnames(df0)[1]
+#     # x <- colnames(df0)[2]
+#     colnames(df0) <- c("y", "x")
+#
+#     is_normal <- is_normality(df0, y ~ x)  # from "./utils.R"
+#     is_balance <- !is_unbalance(df0, y ~ x)  # from "./utils.R"
+#     is_var_equal <- levene_test(df0, y ~ x)[["is_var_equal"]]  # from "./homoscedasticity.R"
+#
+#     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#     ## Parametric ====
+#     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#     if (is_normal)
+#     {
+#         pre_hoc <- stats::oneway.test(y ~ x, df0, var.equal = is_var_equal)
+#         pre_hoc_pass <- pre_hoc$p.value < alpha
+#
+#         ### Tukey-HSD ================
+#         if (is_var_equal & is_balance)
+#         {
+#             tests <- "Fisher's ANOVA + Tukey-HSD test"
+#             post_hoc <- Tukey_HSD_test(
+#                 data = df0,
+#                 formula = y ~ x,
+#                 alpha = alpha,
+#                 p_adjust_method = "none"
+#             )
+#         }
+#
+#         ### Tukey-Kramer ==============
+#         if (is_var_equal & !is_balance)
+#         {
+#             tests <- "Fisher's ANOVA + Tukey-Kramer test"
+#             post_hoc <- Tukey_Kramer_test(
+#                 data = df0,
+#                 formula = y ~ x,
+#                 alpha = alpha,
+#                 p_adjust_method = "none"
+#             )
+#         }
+#
+#         ### Games-Howell ==============
+#         if ( ! is_var_equal )
+#         {
+#             tests <- "Welch's ANOVA + Games-Howell test"
+#             post_hoc <- Games_Howell_test(
+#                 data = df0,
+#                 formula = y ~ x,
+#                 alpha = alpha,
+#                 p_adjust_method = "none"
+#             )
+#         }
+#     }
+#
+#     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#     ## Non-parametric ====
+#     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#     if ( ! is_normal )
+#     {
+#         ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#         ### Aligned Rank Transformed (ART) + ART-C ====
+#         ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#         if (use_art)
+#         {
+#             tests <- "Aligned Rank Transform (ART) + ART-Contrast"
+#             post_hoc <- list()
+#
+#             # If the group names start with numbers, then insert an "x" as the name prefix
+#             group_name_first_character <- strtrim(as.character(df0$x), 1)
+#             insert_x_to_name <- any(string_is_number(group_name_first_character))
+#
+#             if ( ! is.factor(df0$x) ) df0$x <- as.factor(df0$x)
+#
+#             art_mod <- ARTool::art(formula = y ~ x, data = df0)
+#             pre_hoc <- stats::anova(art_mod)
+#             pre_hoc_pass <- pre_hoc$`Pr(>F)` < alpha
+#
+#             art_c <- ARTool::art.con(
+#                 m = art_mod,
+#                 formula = ~ x,
+#                 adjust = p_adjust_method
+#             )
+#             tmp_art_c <- art_c
+#             art_c <- as.data.frame(art_c)
+#
+#             #### Tidy-up contrasts
+#             desc_df <- with(
+#                 data = df0,
+#                 expr = vapply(
+#                     X = c("length", "mean", "sd", "min", "max", "median"),
+#                     FUN = function(fns) tapply(y, x, fns),
+#                     FUN.VALUE = numeric(length(unique(df0[["x"]])))
+#                 )
+#             )
+#
+#             desc_df <- as.data.frame(desc_df)
+#             desc_df <- desc_df[order(desc_df[["median"]], decreasing = TRUE), ]
+#             group_comb <- utils::combn(rownames(desc_df), m = 2, simplify = FALSE)
+#
+#             cont_vct <- vector("character", length = length(group_comb))
+#             pval_vct <- vector("numeric", length = length(group_comb))
+#
+#             for (i in seq_along(group_comb)) {
+#                 gname1 <- group_comb[[i]][1]
+#                 gname2 <- group_comb[[i]][2]
+#
+#                 gname1_2 <- sprintf("%s - %s", gname1, gname2)
+#                 gname2_1 <- sprintf("%s - %s", gname2, gname1)
+#
+#                 if (insert_x_to_name) {
+#                     gname1_2 <- sprintf("x%s - x%s", gname1, gname2)
+#                     gname2_1 <- sprintf("x%s - x%s", gname2, gname1)
+#                 }
+#
+#                 bool1 <- vapply(
+#                     X = art_c$contrast,
+#                     FUN = function(x) identical(x, gname1_2),
+#                     FUN.VALUE = logical(1)
+#                 )
+#
+#                 bool2 <- vapply(
+#                     X = art_c$contrast,
+#                     FUN = function(x) identical(x, gname2_1),
+#                     FUN.VALUE = logical(1)
+#                 )
+#
+#                 pval <- as.numeric(art_c[["p.value"]][bool1 | bool2])
+#
+#                 cont_vct[i] <- paste(gname1, gname2, sep = " |vs| ")
+#                 pval_vct[i] <- pval
+#             }
+#
+#             cld_res <- compact_letter_display(
+#                 groups = row.names(desc_df),
+#                 means = desc_df[["median"]],
+#                 comparisons = cont_vct,
+#                 pval = pval_vct,
+#                 alpha = alpha
+#             )
+#
+#             result <- data.frame(
+#                 row.names = row.names(desc_df),
+#                 GROUP = row.names(desc_df),
+#                 N = desc_df[["length"]],
+#                 AVG = desc_df[["mean"]],
+#                 SD = desc_df[["sd"]],
+#                 MED = desc_df[["median"]],
+#                 MIN = desc_df[["min"]],
+#                 MAX = desc_df[["max"]],
+#                 CLD = unname(cld_res)
+#             )
+#
+#             post_hoc$result <- result
+#             post_hoc$comparisons <- art_c
+#         }
+#
+#         ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#         ### Kruskal-Wallis + Dunn's test ====
+#         ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#         if ( ! use_art )
+#         {
+#             tests <- "Kruskal-Wallis + Dunn's test"
+#
+#             pre_hoc <- with(
+#                 data = df0,
+#                 expr = stats::kruskal.test(y, x)
+#             )
+#             pre_hoc_pass <- pre_hoc[["p.value"]] < alpha
+#
+#             post_hoc <- Dunn_test(
+#                 data = df0,
+#                 formula = y ~ x,
+#                 alpha = alpha,
+#                 p_adjust_method = p_adjust_method
+#             )
+#         }
+#     }
+#
+#     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#     ## Output ====
+#     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#     ret <- list(
+#         pre_hoc = pre_hoc,
+#         result = post_hoc$result,
+#         comparisons = post_hoc$comparisons,
+#         tests = tests
+#     )
+#
+#     return(ret)
+#
+#     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#     ## Testing ====
+#     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#     set.seed(1)
+#     df0 <- data.frame(
+#         group = rep(c("A", "B", "C"), each = 10),
+#         norm_data = c(rnorm(10, -1, 2), rnorm(10, 3, 2), rnorm(10, 0, 1.5)),
+#         skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+#     )
+#
+#     out <- oneway_test(df0, skew_data ~ group)
+#     res <- out$result
+#     res
+# }

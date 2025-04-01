@@ -107,7 +107,7 @@ Dunn_test <- function(
     ## DO NOT use ranked data in the descriptive table (use `y` rather than `ranked_y`)
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     desc_mat2 <- summarize(df0, y ~ x)  # summarize() <<< utils.R
-    desc_mat2 <- desc_mat2[match(rownames(desc_mat2), group_names), ]
+    desc_mat2 <- desc_mat2[match(group_names, rownames(desc_mat2)), ]
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Output ====

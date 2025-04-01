@@ -13,7 +13,9 @@ Tukey_HSD_test(data, formula, alpha = 0.05, p_adjust_method = "none")
 
 \item{alpha}{Numeric value range from 0 to 1 (default: 0.05). The error tolerance.}
 
-\item{p_adjust_method}{A character string (default: "none"). Other options: \code{stats::p.adjust.methods}.}
+\item{p_adjust_method}{A character string indicating which method to use for p-value adjustment (default: "none").
+For Tukey-HSD, this option should always be "none", and the calculated padj is "Tukey-adjusted p-value".
+Other options: \code{stats::p.adjust.methods} (NOT recommended).}
 }
 \value{
 A list with two vectors.

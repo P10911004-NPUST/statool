@@ -19,18 +19,44 @@ One-way aligned rank transform ANOVA
 }
 \examples{
 set.seed(1)
+
 df0 <- data.frame(
     group = as.factor(rep(c("A", "B", "C"), each = 10)),
-    norm_data = c(rnorm(10, -1, 2), rnorm(10, 3, 2), rnorm(10, 0, 1.5)),
-    skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+    skew_data1 = c(rlnorm(10, -1, 2), sqrt(rcauchy(10, 3, 2) ^ 2), rlnorm(10, 0, 1.5)),
+    skew_data2 = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
 )
-art_1(df0, skew_data ~ group)
+
+out <- art_1(df0, skew_data1 ~ group)
+
+print(out$pre_hoc)
 #> Anova Table (Type 3)
-#> Response: group
-#> Sum Sq Df F value    Pr(>F)
-#> (Intercept) 6502.5  1 263.022 1.917e-15 ***
-#> x           1580.0  2  31.955 7.623e-08 ***
-#> Residuals    667.5 27
+#> art(skew_data1) ~ group
+#>             Sum Sq Df F value    Pr(>F)
+#> (Intercept)  883.6  1  16.002 0.0004423 ***
+#> x            756.6  2   6.851 0.0039229 **
+#> Residuals   1490.9 27
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+print(out$result)
+#>   GROUP  N      AVG       SD       MED        MIN      MAX CLD
+#> 1     B 10 4.547070 2.543874 4.2027752 0.87471697 8.349396   a
+#> 2     C 10 2.279905 1.429011 2.4855260 0.05058867 4.119593  ab
+#> 3     A 10 1.437723 2.687525 0.6211093 0.06916521 8.940233   b
+}
+\references{
+Wobbrock, J.O., Findlater, L., Gergle, D. and Higgins, J.J. (2011).
+The aligned rank transform for nonparametric factorial analyses using only ANOVA procedures.
+Proceedings of the ACM Conference on Human Factors in Computing Systems (CHI '11).
+Vancouver, British Columbia (May 7-12, 2011). New York: ACM Press, pp. 143-146.
+https://doi.org/10.1145/1978942.1978963
+
+Elkin, L.A., Kay, M., Higgins, J.J. and Wobbrock, J.O. (2021).
+An aligned rank transform procedure for multifactor contrast tests.
+Proceedings of the ACM Symposium on User Interface Software and Technology (UIST '21).
+Virtual Event (October 10-14, 2021). New York: ACM Press, pp. 754-768.
+https://doi.org/10.1145/3472749.3474784
+}
+\author{
+Joon-Keat Lai
 }
