@@ -63,11 +63,19 @@ oneway_test <- function(
         pre_hoc <- stats::oneway.test(y ~ x, df0, var.equal = is_var_equal)
         pre_hoc_pass <- pre_hoc$p.value < alpha
 
-        ### Tukey-HSD ================
+        ### REGWQ-test prior to Tukey-HSD ================
         if (is_var_equal & is_balance)
         {
-            tests <- "Fisher's ANOVA + Tukey-HSD test"
-            post_hoc <- Tukey_HSD_test(
+            # tests <- "Fisher's ANOVA + Tukey-HSD test"
+            # post_hoc <- Tukey_HSD_test(
+            #     data = df0,
+            #     formula = y ~ x,
+            #     alpha = alpha,
+            #     p_adjust_method = "none"
+            # )
+
+            tests <- "Fisher's ANOVA + REGWQ test"
+            post_hoc <- REGWQ_test(
                 data = df0,
                 formula = y ~ x,
                 alpha = alpha,

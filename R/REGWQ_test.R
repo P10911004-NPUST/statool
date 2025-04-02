@@ -45,6 +45,20 @@
 #' Howell, D.C. 2013.
 #' Statistical methods for psychology (8th ed.). pg. 393.
 #' Wadsworth Cengage Learning, Belmont, CA.
+#'
+#' @examples
+#' set.seed(1)
+#' group <- rep(c("A", "B", "C", "D", "E"), each = 10)
+#' val <- c(rnorm(10, 1, 1.5), rnorm(10, 2, 1), rnorm(10, -4, 2), rnorm(10), rnorm(10))
+#' df0 <- data.frame(group = group, val = val)
+#' out <- REGWQ_test(df0, val ~ group)
+#' out$result
+#' #>   GROUP  N        AVG        SD         MED        MIN        MAX CLD
+#' #> 1     B 10  2.2488450 1.0695148  2.49187228 -0.2146999  3.5117812   a
+#' #> 2     A 10  1.1983042 1.1708789  1.38486332 -0.2534429  3.3929212  ab
+#' #> 3     E 10  0.1341367 0.5957661  0.12611787 -0.7074952  0.8811077   b
+#' #> 4     D 10  0.1207302 0.8085646 -0.05655922 -1.3770596  1.3586796   b
+#' #> 5     C 10 -4.2673465 1.9112152 -3.98156376 -7.9787034 -2.1620453   c
 REGWQ_test <- function(
         data,
         formula,
@@ -241,6 +255,7 @@ REGWQ_test <- function(
     # Output ====
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     desc_df <- data.frame(
+        row.names = NULL,
         GROUP = group_names,
         N = group_sizes,
         AVG = group_means,
@@ -252,6 +267,7 @@ REGWQ_test <- function(
     )
 
     comparisons_df <- data.frame(
+        row.names = NULL,
         comparisons = group_comparisons,
         k_subset = out_k_subset,
         alpha_k = out_modified_alpha,
@@ -262,7 +278,8 @@ REGWQ_test <- function(
         qval = out_group_qvals,
         qcrit = out_group_q_crits,
         pval = group_pvals,
-        padj = group_padjs
+        padj = group_padjs,
+        signif = pval2asterisk(group_padjs)
     )
 
 
@@ -272,6 +289,32 @@ REGWQ_test <- function(
     )
 
     return(res)
+
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # Testing ====
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    set.seed(1)
+
+    group = rep(c("A", "B", "C", "D", "E"), each = 10)
+    val <- c(rnorm(10, 1, 1.5), rnorm(10, 2, 1), rnorm(10, -4, 2), rnorm(10), rnorm(10))
+
+    df0 <- data.frame(
+        group = group,
+        val = val
+    )
+
+    out <- REGWQ_test(df0, val ~ group)
+    out$result
+
+    # mut <- mutoss::regwq(val ~ group, df0, alpha = 0.05, silent = TRUE)
+    # mut <- data.frame(
+    #     comparisons = rownames(mut$confIntervals),
+    #     confIntervals = mut$confIntervals[, 1, drop = TRUE],
+    #     statistics = mut$statistic,
+    #     padj = mut$adjPValues,
+    #     rejected = mut$rejected
+    # )
+    # print(mut)
 }
 
 
