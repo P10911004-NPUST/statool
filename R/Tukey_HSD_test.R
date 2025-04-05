@@ -26,6 +26,21 @@
 #' Comparing Individual Means in the Analysis of Variance.
 #' Biometrics, vol. 5, no. 2, pp. 99-114. JSTOR.
 #' https://doi.org/10.2307/3001913.
+#'
+#' @examples
+#' set.seed(1)
+#' df0 <- data.frame(
+#'     group = as.factor(rep(c("A", "B", "C"), each = 10)),
+#'     norm_data = c(rnorm(10, -1, 2), rnorm(10, 3, 2), rnorm(10, 0, 2)),
+#'     skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+#' )
+#'
+#' out <- Tukey_HSD_test(df0, norm_data ~ group)
+#' out$cld
+#' #>   GROUP  N        AVG       SD         MED       MIN      MAX CLD
+#' #> 1     B 10  3.4976899 2.139030  3.98374456 -1.429400 6.023562   a
+#' #> 2     C 10 -0.2673465 1.911215  0.01843624 -3.978703 1.837955   b
+#' #> 3     A 10 -0.7355944 1.561172 -0.48684890 -2.671257 2.190562   b
 Tukey_HSD_test <- function(
         data,
         formula,
@@ -40,6 +55,17 @@ Tukey_HSD_test <- function(
 
     n_fct_lvl <- length(unique(df0$x))
     if (n_fct_lvl < 3) warning("Factor levels should be more than 2.")
+
+    # is_normality(), is_unbalance() <<< ./utils.R
+    if ( ! is_normality(df0, y ~ x) ) warning("Data is not normal distribution.")
+    if ( is_unbalance(df0, y ~ x) ) warning("Unbalanced design. Please consider Tukey-Kramer test")
+    # levene_test() <<< ./homoscedasticity.R
+    if ( ! levene_test(df0, y ~ x)[["is_var_equal"]] )
+        warning("Variations between groups are different. Please consider Games-Howell test.")
+
+    # Pre-hoc ====
+    pre_hoc <- stats::oneway.test(y ~ x, df0, var.equal = TRUE)
+    pre_hoc_pass <- pre_hoc$p.value < alpha
 
     # Descriptive ====
     desc_mat <- with(
@@ -139,32 +165,28 @@ Tukey_HSD_test <- function(
     )
 
 
-    res <- list(
-        result = desc_df,
-        comparisons = comparisons_df
+    ret <- list(
+        tests = "Fisher's ANOVA + Tukey-HSD test",
+        pre_hoc = pre_hoc,
+        post_hoc = comparisons_df,
+        cld = desc_df
     )
 
-    return(res)
+    return(ret)
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Testing ====
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    # set.seed(1)
-    # df0 <- data.frame(
-    #     group = as.factor(rep(c("A", "B", "C"), each = 10)),
-    #     norm_data = c(rnorm(10, -1, 2), rnorm(10, 3, 2), rnorm(10, 0, 2)),
-    #     skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
-    # )
-    #
-    # out <- Tukey_HSD_test(df0, norm_data ~ group)
-    # out$comparisons
-    # # stats::TukeyHSD(aov(norm_data ~ group, df0))
-    #
-    # art_mod <- ARTool::art(norm_data ~ group, df0)
-    # ARTool::art.con(art_mod, "group")
-    #
-    # res <- out$result
-    # res
+    set.seed(1)
+    df0 <- data.frame(
+        group = as.factor(rep(c("A", "B", "C"), each = 10)),
+        norm_data = c(rnorm(10, -1, 2), rnorm(10, 3, 2), rnorm(10, 0, 2)),
+        skew_data = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+    )
+
+    out <- Tukey_HSD_test(df0, norm_data ~ group)
+    out$cld
+    # stats::TukeyHSD(aov(norm_data ~ group, df0))
 }
 
 

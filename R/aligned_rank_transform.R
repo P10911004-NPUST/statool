@@ -2,6 +2,8 @@
 #'
 #' @param data A data frame.
 #' @param formula A formula specifying the model, for example, yield ~ fertilizer_level.
+#' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
+#' @param p_adjust_method A character string (default: "none"). Other options: `stats::p.adjust.methods`.
 #'
 #' @importFrom car Anova
 #'
@@ -25,15 +27,12 @@
 #'
 #' @examples
 #' set.seed(1)
-#'
 #' df0 <- data.frame(
 #'     group = as.factor(rep(c("A", "B", "C"), each = 10)),
 #'     skew_data1 = c(rlnorm(10, -1, 2), sqrt(rcauchy(10, 3, 2) ^ 2), rlnorm(10, 0, 1.5)),
 #'     skew_data2 = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
 #' )
-#'
 #' out <- art_1(df0, skew_data1 ~ group)
-#'
 #' print(out$pre_hoc)
 #' #> Anova Table (Type 3)
 #' #> art(skew_data1) ~ group
@@ -44,13 +43,13 @@
 #' #> ---
 #' #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #'
-#' print(out$result)
+#' print(out$cld)
 #' #>   GROUP  N      AVG       SD       MED        MIN      MAX CLD
 #' #> 1     B 10 4.547070 2.543874 4.2027752 0.87471697 8.349396   a
 #' #> 2     C 10 2.279905 1.429011 2.4855260 0.05058867 4.119593  ab
 #' #> 3     A 10 1.437723 2.687525 0.6211093 0.06916521 8.940233   b
 
-art_1 <- function(data, formula)
+art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
 {
     df0 <- stats::model.frame(formula, data)
     y_name <- colnames(df0)[1]
@@ -90,27 +89,28 @@ art_1 <- function(data, formula)
     is_balanced <- length(unique(table(df0$x))) == 1
     if (is_balanced) {
         tests <- "ART + Tukey-HSD on ART-response"
-        post_hoc <- Tukey_HSD_test(df0, ranked_Y ~ x)
+        tukey <- Tukey_HSD_test(df0, ranked_Y ~ x, alpha)
     } else {
         tests <- "ART + Tukey-Kramer on ART-response"
-        post_hoc <- Tukey_Kramer_test(df0, ranked_Y ~ x)
+        tukey <- Tukey_Kramer_test(df0, ranked_Y ~ x, alpha)
     }
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## DO NOT use ranked data in the descriptive table (use `y` rather than `ranked_y`)
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     desc_mat <- summarize(df0, y ~ x)
-    desc_mat <- desc_mat[match(post_hoc$result$GROUP, rownames(desc_mat)), ]
-    post_hoc$result <- data.frame(
+    desc_mat <- desc_mat[match(tukey$cld$GROUP, rownames(desc_mat)), ]
+
+    tukey$cld <- data.frame(
         row.names = NULL,
-        GROUP = post_hoc$result$GROUP,
-        N = post_hoc$result$N,
+        GROUP = tukey$cld$GROUP,
+        N = tukey$cld$N,
         AVG = desc_mat[, "mean"],
         SD = desc_mat[, "sd"],
         MED = desc_mat[, "median"],
         MIN = desc_mat[, "min"],
         MAX = desc_mat[, "max"],
-        CLD = post_hoc$result$CLD
+        CLD = tukey$cld$CLD
     )
 
     colnames(df0)[colnames(df0) == "y"] <- y_name
@@ -119,11 +119,11 @@ art_1 <- function(data, formula)
     colnames(df0)[colnames(df0) == "x"] <- x_name
 
     ret <- list(
+        tests = tests,
         data = df0,
-        pre_hoc = pre_hoc,
-        result = post_hoc$result,
-        comparisons = post_hoc$comparisons,
-        tests = tests
+        pre_hoc = tukey$pre_hoc,
+        post_hoc = tukey$post_hoc,
+        cld = tukey$cld
     )
 
     return(ret)
@@ -132,16 +132,14 @@ art_1 <- function(data, formula)
     ## Test
     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     set.seed(1)
-
     df0 <- data.frame(
         group = as.factor(rep(c("A", "B", "C"), each = 10)),
         skew_data1 = c(rlnorm(10, -1, 2), sqrt(rcauchy(10, 3, 2) ^ 2), rlnorm(10, 0, 1.5)),
         skew_data2 = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
     )
-
     out <- art_1(df0, skew_data1 ~ group)
     print(out$pre_hoc)
-    print(out$result)
+    print(out$cld)
 }
 
 

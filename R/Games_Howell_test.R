@@ -28,8 +28,7 @@
 #' )
 #'
 #' out <- Games_Howell_test(df0, norm_data ~ group)
-#' res <- out$result
-#' res
+#' out$cld
 #' #>   GROUP  N        AVG        SD          MED        MIN       MAX CLD
 #' #> 1     B 10  3.2488450 1.0695148  3.491872279  0.7853001 4.5117812   a
 #' #> 2     C 10 -0.1336732 0.9556076  0.009218122 -1.9893517 0.9189774   b
@@ -48,6 +47,16 @@ Games_Howell_test <- function(
 
     n_fct_lvl <- length(unique(df0$x))
     if (n_fct_lvl < 3) stop("Factor levels should be more than 2.")
+
+    # is_normality(), is_unbalance() <<< ./utils.R
+    if ( ! is_normality(df0, y ~ x) ) warning("Data is not normal distribution.")
+    # levene_test() <<< ./homoscedasticity.R
+    if ( levene_test(df0, y ~ x)[["is_var_equal"]] )
+        warning("Variations between groups are similar. Please consider Tukey test.")
+
+    # Pre-hoc ====
+    pre_hoc <- stats::oneway.test(y ~ x, df0, var.equal = FALSE)
+    pre_hoc_pass <- pre_hoc$p.value < alpha
 
     # Descriptive ====
     desc_mat <- summarize(df0, y ~ x)  # summarize() <<< utils.R
@@ -160,8 +169,10 @@ Games_Howell_test <- function(
     )
 
     ret <- list(
-        result = desc_df,
-        comparisons = comparisons_df
+        tests = "Welch's ANOVA + Games-Howell test",
+        pre_hoc = pre_hoc,
+        post_hoc = comparisons_df,
+        cld = desc_df
     )
 
     return(ret)
@@ -177,8 +188,7 @@ Games_Howell_test <- function(
     )
 
     out <- Games_Howell_test(df0, norm_data ~ group)
-    res <- out$result
-    res
+    out$cld
 }
 
 

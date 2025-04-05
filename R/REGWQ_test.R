@@ -75,6 +75,23 @@ REGWQ_test <- function(
     n_fct_lvl <- length(unique(df0$x))
     if (n_fct_lvl < 3) warning("Factor levels should be more than 2.")
 
+    # is_normality(), is_unbalance() <<< ./utils.R
+    if ( ! is_normality(df0, y ~ x) ) warning("Data is not normal distribution.")
+
+    if ( is_unbalance(df0, y ~ x) )
+    {
+        # levene_test() <<< ./homoscedasticity.R
+        var_equal <- levene_test(df0, y ~ x)[["is_var_equal"]]
+        if ( var_equal )
+            warning("Unbalanced. Please consider Tukey-Kramer test.")
+        if ( ! var_equal )
+            warning("Unbalanced and heteroscedastic. Please consider Games-Howell test.")
+    }
+
+    # Pre-hoc ====
+    pre_hoc <- stats::oneway.test(y ~ x, df0, var.equal = TRUE)
+    pre_hoc_pass <- pre_hoc$p.value < alpha
+
     # Descriptive ====
     desc_mat <- with(
         data = df0,
@@ -284,8 +301,10 @@ REGWQ_test <- function(
 
 
     res <- list(
-        result = desc_df,
-        comparisons = comparisons_df
+        tests = "Fisher's ANOVA + REGWQ test",
+        pre_hoc = pre_hoc,
+        post_hoc = comparisons_df,
+        cld = desc_df
     )
 
     return(res)

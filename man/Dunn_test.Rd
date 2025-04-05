@@ -13,13 +13,15 @@ Dunn_test(data, formula, alpha = 0.05, p_adjust_method = "holm")
 
 \item{alpha}{Numeric value range from 0 to 1 (Default: 0.05).}
 
-\item{p_adjust_method}{Character string (default: "holm"). Other options: \code{stats::p.adjust.methods}.}
+\item{p_adjust_method}{p-value adjustment method (Default: "holm"). See \code{stats::p.adjust.methods}.}
 }
 \value{
-A list with two vectors. \
+A list with four vectors. \
 \enumerate{
-\item result: consists of descriptive statistics and compact letter display;
-\item comparisons: includes statistics parameters for each pairwise comparisons.
+\item tests: A message showing the statistical methods applied on the dataset.
+\item pre_hoc: The report of the omnibus test.
+\item post_hoc: A dataframe reporting the post-hoc result.
+\item cld: A dataframe reporting the descriptive stats and compact letter display.
 }
 }
 \description{
@@ -34,8 +36,8 @@ df0 <- data.frame(
 )
 
 out <- Dunn_test(df0, skew_data ~ group)
-res <- out$result
-res
+cld <- out$cld
+cld
 #>   GROUP  N       AVG        SD       MED        MIN       MAX CLD
 #> 1     A 10 6.9585396 1.6171293 7.3131184 4.48264090 9.9541191   a
 #> 2     C 10 0.5674507 0.2713306 0.6236108 0.05893438 0.8762692   b

@@ -5,11 +5,13 @@
 #' @param data A data frame in which the variables specified in the formula will be found.
 #' @param formula A formula specifying the model.
 #' @param alpha Numeric value range from 0 to 1 (Default: 0.05).
-#' @param p_adjust_method Character string (default: "holm"). Other options: `stats::p.adjust.methods`.
+#' @param p_adjust_method p-value adjustment method (Default: "holm"). See `stats::p.adjust.methods`.
 #'
-#' @return A list with two vectors. \
-#' 1. result: consists of descriptive statistics and compact letter display;
-#' 2. comparisons: includes statistics parameters for each pairwise comparisons.
+#' @return A list with four vectors. \
+#' 1. tests: A message showing the statistical methods applied on the dataset.
+#' 2. pre_hoc: The report of the omnibus test.
+#' 3. post_hoc: A dataframe reporting the post-hoc result.
+#' 4. cld: A dataframe reporting the descriptive stats and compact letter display.
 #'
 #' @export
 #' @author Joon-Keat Lai
@@ -29,8 +31,8 @@
 #' )
 #'
 #' out <- Dunn_test(df0, skew_data ~ group)
-#' res <- out$result
-#' res
+#' cld <- out$cld
+#' cld
 #' #>   GROUP  N       AVG        SD       MED        MIN       MAX CLD
 #' #> 1     A 10 6.9585396 1.6171293 7.3131184 4.48264090 9.9541191   a
 #' #> 2     C 10 0.5674507 0.2713306 0.6236108 0.05893438 0.8762692   b
@@ -53,6 +55,12 @@ Dunn_test <- function(
 
     n_fct_lvl <- length(unique(df0$x))
     if (n_fct_lvl < 3) stop("Factor levels should be more than 2.")
+
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    ## Pre-hoc ====
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    pre_hoc <- with(df0, stats::kruskal.test(y, x))
+    pre_hoc_pass <- pre_hoc[["p.value"]] < alpha
 
     df0$ranked_y <- rank(df0$y)
 
@@ -124,6 +132,8 @@ Dunn_test <- function(
         CLD = group_cld
     )
 
+    if ( ! pre_hoc_pass ) desc_df$CLD <- "a"
+
     comparisons_df <- data.frame(
         row.names = NULL,
         comparisons = group_comparisons,
@@ -137,8 +147,10 @@ Dunn_test <- function(
     )
 
     res <- list(
-        result = desc_df,
-        comparisons = comparisons_df
+        tests = "Kruskal-Wallis test + Dunn's test",
+        pre_hoc = pre_hoc,
+        post_hoc = comparisons_df,
+        cld = desc_df
     )
 
     return(res)
@@ -154,8 +166,8 @@ Dunn_test <- function(
     )
 
     out <- Dunn_test(df0, skew_data ~ group)
-    res <- out$result
-    res
+    cld <- out$cld
+    cld
 }
 
 

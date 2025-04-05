@@ -33,6 +33,16 @@ Fisher_LSD_test <- function(
     n_fct_lvl <- length(unique(df0$x))
     if (n_fct_lvl < 3) stop("Factor levels should be more than 2.")
 
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    ## Pre-hoc
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    is_normal <- is_normality(df0, y ~ x)  # from "./utils.R"
+    is_balance <- !is_unbalance(df0, y ~ x)  # from "./utils.R"
+    is_var_equal <- levene_test(df0, y ~ x)[["is_var_equal"]]  # from "./homoscedasticity.R"
+
+    pre_hoc <- stats::oneway.test(y ~ x, df0, var.equal = is_var_equal)
+    pre_hoc_pass <- pre_hoc$p.value < alpha
+
     # Descriptive ====
     desc_mat <- with(
         data = df0,
@@ -48,7 +58,6 @@ Fisher_LSD_test <- function(
     group_means <- desc_mat[, "mean"]
     group_sizes <- desc_mat[, "length"]
     group_names <- names(group_means)
-
 
     # ANOVA model ====
     aov_mod <- stats::aov(formula = y ~ x, data = df0)
@@ -143,8 +152,8 @@ Fisher_LSD_test <- function(
 
 
     res <- list(
-        result = desc_df,
-        comparisons = comparisons_df
+        post_hoc = comparisons_df,
+        cld = desc_df
     )
 
     return(res)
