@@ -27,10 +27,12 @@ summarize <- function(data, formula)
 
     n_fct_lvl <- length(unique(df0$x))
 
+    SS <- function(x) sum((x - mean(x)) ^ 2)
+
     desc_mat <- with(
         data = df0,
         expr = vapply(
-            X = c("sum", "length", "mean", "sd", "median", "min", "max"),
+            X = c("sum", "length", "mean", "sd", "median", "min", "max", "SS"),
             FUN = function(fns) tapply(y, x, fns),
             FUN.VALUE = numeric(n_fct_lvl)
         )
@@ -221,6 +223,7 @@ is_tied <- function(data, formula)
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # Others ====
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#' @export
 dataframe_to_list <- function(data, formula)
 {
     if (!is.data.frame(data)) stop("Input `data` should be a dataframe")
@@ -232,16 +235,7 @@ dataframe_to_list <- function(data, formula)
 
     lst <- list()
     for (g in group_names)
-    {
-        lst[[g]] <- with(
-            data = df0,
-            expr = subset(
-                subset = (x == g),
-                select = y,
-                drop = TRUE
-            )
-        )
-    }
+        lst[[g]] <- subset(df0, x == g, select = y, drop = TRUE)
 
     return(lst)
 }
