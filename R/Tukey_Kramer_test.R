@@ -7,9 +7,11 @@
 #' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
 #' @param p_adjust_method A character string (default: "none"). Other options: `stats::p.adjust.methods`.
 #'
-#' @return A list with two vectors.
-#' 1. result: consists of descriptive statistics and compact letter display;
-#' 2. comparisons: includes statistics parameters for each pairwise comparisons.
+#' @return A list with four vectors.
+#' 1. tests: A message showing the statistical methods applied on the dataset.
+#' 2. pre_hoc: The result of pmnibus test.
+#' 3. post_hoc: includes statistics parameters for each pairwise comparisons.
+#' 4. cld: A dataframe reporting the descriptive stats and compact letter display.
 #'
 #' @export
 #' @author Joon-Keat Lai
@@ -37,6 +39,10 @@ Tukey_Kramer_test <- function(
 
     n_fct_lvl <- length(unique(df0$x))
     if (n_fct_lvl < 3) warning("Factor levels should be more than 2.")
+
+    # Pre-hoc ====
+    pre_hoc <- stats::oneway.test(y ~ x, df0, var.equal = TRUE)
+    pre_hoc_pass <- pre_hoc$p.value < alpha
 
     # Descriptive ====
     desc_mat <- with(
@@ -142,12 +148,14 @@ Tukey_Kramer_test <- function(
     )
 
 
-    res <- list(
-        result = desc_df,
-        comparisons = comparisons_df
+    ret <- list(
+        tests = "Fisher's ANOVA + Tukey-Kramer test",
+        pre_hoc = pre_hoc,
+        post_hoc = comparisons_df,
+        cld = desc_df
     )
 
-    return(res)
+    return(ret)
 }
 
 

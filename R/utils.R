@@ -223,7 +223,25 @@ is_tied <- function(data, formula)
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # Others ====
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#' Convert dataframe to list
+#'
+#' @param data A dataframe.
+#' @param formula A formula specifying the value and key names. For example, `val ~ group`.
+#'
+#' @return A list
 #' @export
+#'
+#' @examples
+#' df0 <- data.frame(group = rep(c("A", "B", "C"), 5), val = rep(1:3, 5))
+#' dataframe_to_list(df0, val ~ group)
+#' #> $A
+#' #> [1] 1 1 1 1 1
+#' #>
+#' #> $B
+#' #> [1] 2 2 2 2 2
+#' #>
+#' #> $C
+#' #> [1] 3 3 3 3 3
 dataframe_to_list <- function(data, formula)
 {
     if (!is.data.frame(data)) stop("Input `data` should be a dataframe")
@@ -231,11 +249,11 @@ dataframe_to_list <- function(data, formula)
     df0 <- stats::model.frame(formula = formula, data = data)
     colnames(df0) <- c("y", "x")
 
-    group_names <- unique(df0[["x"]])
+    group_names <- unique(df0$x)
 
     lst <- list()
     for (g in group_names)
-        lst[[g]] <- subset(df0, x == g, select = y, drop = TRUE)
+        lst[[g]] <- with(df0, subset(y, x == g, drop = TRUE))
 
     return(lst)
 }
@@ -244,21 +262,21 @@ dataframe_to_list <- function(data, formula)
 list_to_dataframe <- function(data, formula = NULL)
 {
     lst <- data
-    max_n <- base::max(base::sapply(lst, length))
+    max_n <- max(sapply(lst, length))
 
     if (!is_list(lst)) stop("Input `data` should be a list")
-    if (base::is.null(base::names(lst))) base::names(lst) <- base::seq_along(lst)
+    if (is.null(names(lst))) names(lst) <- seq_along(lst)
 
-    if (base::is.null(formula))
+    if (is.null(formula))
     {
         x_name <- "groups"
         y_name <- "values"
     } else {
-        x_name <- base::as.character(formula)[3]
-        y_name <- base::as.character(formula)[2]
+        x_name <- as.character(formula)[3]
+        y_name <- as.character(formula)[2]
     }
 
-    df0 <- base::list2DF(lst)
+    df0 <- list2DF(lst)
 
     df0 <- stats::reshape(
         data = df0,
@@ -282,8 +300,8 @@ list_to_dataframe <- function(data, formula = NULL)
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 outer2 <- function(x, FUN = "paste", drop = TRUE)
 {
-    res <- base::outer(x, x, FUN)
-    if (drop) res <- res[base::upper.tri(res)]
+    res <- outer(x, x, FUN)
+    if (drop) res <- res[upper.tri(res)]
     return(res)
 }
 

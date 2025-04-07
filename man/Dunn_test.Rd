@@ -16,11 +16,11 @@ Dunn_test(data, formula, alpha = 0.05, p_adjust_method = "holm")
 \item{p_adjust_method}{p-value adjustment method (Default: "holm"). See \code{stats::p.adjust.methods}.}
 }
 \value{
-A list with four vectors. \
+A list with four vectors.
 \enumerate{
 \item tests: A message showing the statistical methods applied on the dataset.
-\item pre_hoc: The report of the omnibus test.
-\item post_hoc: A dataframe reporting the post-hoc result.
+\item pre_hoc: The result of pmnibus test.
+\item post_hoc: includes statistics parameters for each pairwise comparisons.
 \item cld: A dataframe reporting the descriptive stats and compact letter display.
 }
 }

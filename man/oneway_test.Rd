@@ -11,7 +11,7 @@ oneway_test(
   formula,
   alpha = 0.05,
   p_adjust_method = "holm",
-  use_art = TRUE
+  sensitive = TRUE
 )
 }
 \arguments{
@@ -23,7 +23,7 @@ oneway_test(
 
 \item{p_adjust_method}{Character string (default: "holm"). Other options: \code{stats::p.adjust.methods}.}
 
-\item{use_art}{Whether using aligned rank transform. Default: TRUE}
+\item{sensitive}{Whether using aligned rank transform. Default: TRUE}
 }
 \value{
 A list, contains omnibus test and post-hoc test results.
@@ -42,16 +42,14 @@ df0 <- data.frame(
 )
 
 out <- oneway_test(df0, skew_data ~ group)
-res <- out$result
-res
+out$cld
 #>   GROUPS  N       AVG        SD       MED        MIN       MAX CLD
 #> A      A 10 6.9585396 1.6171293 7.3131184 4.48264090 9.9541191   a
 #> C      C 10 0.5674507 0.2713306 0.6236108 0.05893438 0.8762692   b
 #> B      B 10 0.4053906 0.2437230 0.3626733 0.12169192 0.7570871   b
 
 out <- oneway_test(df0, norm_data ~ group)
-res <- out$result
-res
+out$cld
 #>   GROUPS  N        AVG       SD         MED       MIN      MAX CLD
 #> B      B 10  3.4976899 2.139030  3.98374456 -1.429400 6.023562   a
 #> C      C 10 -0.2005099 1.433411  0.01382718 -2.984028 1.378466   b

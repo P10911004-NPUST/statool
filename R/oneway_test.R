@@ -1,5 +1,6 @@
 #' One-way test
-#' Automatically performs one-way test with appropriate method, according to the data distribution
+#'
+#' Automatically performs one-way test with appropriate methods, according to the data distribution
 #' and homoscedasticity.
 #'
 #' @param data A data frame in which the variables specified in the formula will be found.

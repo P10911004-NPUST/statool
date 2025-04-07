@@ -10,9 +10,11 @@
 #' For Tukey-HSD, this option should always be "none", and the calculated padj is "Tukey-adjusted p-value".
 #' Other options: `stats::p.adjust.methods` (NOT recommended).
 #'
-#' @return A list with two vectors.
-#' 1. result: consists of descriptive statistics and compact letter display;
-#' 2. comparisons: includes statistics parameters for each pairwise comparisons.
+#' @return A list with four vectors.
+#' 1. tests: A message showing the statistical methods applied on the dataset.
+#' 2. pre_hoc: The result of pmnibus test.
+#' 3. post_hoc: includes statistics parameters for each pairwise comparisons.
+#' 4. cld: A dataframe reporting the descriptive stats and compact letter display.
 #'
 #' @export
 #' @author Joon-Keat Lai

@@ -18,10 +18,12 @@ For Tukey-HSD, this option should always be "none", and the calculated padj is "
 Other options: \code{stats::p.adjust.methods} (NOT recommended).}
 }
 \value{
-A list with two vectors.
+A list with four vectors.
 \enumerate{
-\item result: consists of descriptive statistics and compact letter display;
-\item comparisons: includes statistics parameters for each pairwise comparisons.
+\item tests: A message showing the statistical methods applied on the dataset.
+\item pre_hoc: The result of pmnibus test.
+\item post_hoc: includes statistics parameters for each pairwise comparisons.
+\item cld: A dataframe reporting the descriptive stats and compact letter display.
 }
 }
 \description{

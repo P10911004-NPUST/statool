@@ -16,10 +16,12 @@ Games_Howell_test(data, formula, alpha = 0.05, p_adjust_method = "none")
 \item{p_adjust_method}{A character string (default: "none"). Other options: \code{stats::p.adjust.methods}.}
 }
 \value{
-A list with two vectors.
+A list with four vectors.
 \enumerate{
-\item result: consists of descriptive statistics and compact letter display;
-\item comparisons: includes statistics parameters for each pairwise comparisons.
+\item tests: A message showing the statistical methods applied on the dataset.
+\item pre_hoc: The result of pmnibus test.
+\item post_hoc: includes statistics parameters for each pairwise comparisons.
+\item cld: A dataframe reporting the descriptive stats and compact letter display.
 }
 }
 \description{
@@ -34,8 +36,7 @@ df0 <- data.frame(
 )
 
 out <- Games_Howell_test(df0, norm_data ~ group)
-res <- out$result
-res
+out$cld
 #>   GROUP  N        AVG        SD          MED        MIN       MAX CLD
 #> 1     B 10  3.2488450 1.0695148  3.491872279  0.7853001 4.5117812   a
 #> 2     C 10 -0.1336732 0.9556076  0.009218122 -1.9893517 0.9189774   b

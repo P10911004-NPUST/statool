@@ -7,9 +7,11 @@
 #' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
 #' @param p_adjust_method A character string (default: "none"). Other options: `stats::p.adjust.methods`.
 #'
-#' @return A list with two vectors.
-#' 1. result: consists of descriptive statistics and compact letter display;
-#' 2. comparisons: includes statistics parameters for each pairwise comparisons.
+#' @return A list with four vectors.
+#' 1. tests: A message showing the statistical methods applied on the dataset.
+#' 2. pre_hoc: The result of pmnibus test.
+#' 3. post_hoc: includes statistics parameters for each pairwise comparisons.
+#' 4. cld: A dataframe reporting the descriptive stats and compact letter display.
 #'
 #' @export
 #' @author Joon-Keat Lai
@@ -151,12 +153,14 @@ Fisher_LSD_test <- function(
     )
 
 
-    res <- list(
+    ret <- list(
+        tests = "Welch's ANOVA + Games-Howell test",
+        pre_hoc = pre_hoc,
         post_hoc = comparisons_df,
         cld = desc_df
     )
 
-    return(res)
+    return(ret)
 }
 
 

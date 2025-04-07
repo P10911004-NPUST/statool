@@ -4,12 +4,16 @@
 \alias{art_1}
 \title{One-way aligned rank transform ANOVA}
 \usage{
-art_1(data, formula)
+art_1(data, formula, alpha = 0.05, p_adjust_method = "none")
 }
 \arguments{
 \item{data}{A data frame.}
 
 \item{formula}{A formula specifying the model, for example, yield ~ fertilizer_level.}
+
+\item{alpha}{Numeric value range from 0 to 1 (default: 0.05). The error tolerance.}
+
+\item{p_adjust_method}{A character string (default: "none"). Other options: \code{stats::p.adjust.methods}.}
 }
 \value{
 ANOVA (type 3) result
@@ -19,15 +23,12 @@ One-way aligned rank transform ANOVA
 }
 \examples{
 set.seed(1)
-
 df0 <- data.frame(
     group = as.factor(rep(c("A", "B", "C"), each = 10)),
     skew_data1 = c(rlnorm(10, -1, 2), sqrt(rcauchy(10, 3, 2) ^ 2), rlnorm(10, 0, 1.5)),
     skew_data2 = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
 )
-
 out <- art_1(df0, skew_data1 ~ group)
-
 print(out$pre_hoc)
 #> Anova Table (Type 3)
 #> art(skew_data1) ~ group
@@ -38,7 +39,7 @@ print(out$pre_hoc)
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-print(out$result)
+print(out$cld)
 #>   GROUP  N      AVG       SD       MED        MIN      MAX CLD
 #> 1     B 10 4.547070 2.543874 4.2027752 0.87471697 8.349396   a
 #> 2     C 10 2.279905 1.429011 2.4855260 0.05058867 4.119593  ab

@@ -1,3 +1,41 @@
+#' Title
+#'
+#' @param data A data frame in which the variables specified in the formula will be found.
+#' @param formula A formula specifying the model.
+#' @param control The which group as the control.
+#' @param alpha Default: 0.05
+#' @param p_adjust_method A character string (default: "none"). Other options: `stats::p.adjust.methods`.
+#' @param nsim Number of times of simulation.
+#' @param seed Random seed.
+#' @param descending Sort the group by their mean value.
+#'
+#' @return A list with four vectors.
+#' 1. tests: A message showing the statistical methods applied on the dataset.
+#' 2. pre_hoc: The result of pmnibus test.
+#' 3. post_hoc: includes statistics parameters for each pairwise comparisons.
+#' 4. cld: A dataframe reporting the descriptive stats and compact letter display.
+#'
+#' @export
+#'
+#' @examples
+#' set.seed(1)
+#' df0 <- data.frame(
+#'     fertilizer = rep(c("A", "B", "C", "D", "E"), each = 10),
+#'     yield = c(
+#'         stats::rnorm(10, 8, 1.2),
+#'         stats::rnorm(10, 9.1, 1.1),
+#'         stats::rnorm(10, 8.5, 1.3),
+#'         stats::rnorm(10, 10, 1.05),
+#'         stats::rnorm(10, 7, 1.17))
+#' )
+#' out <- Dunnett_test(df0, yield ~ fertilizer, control = "A")
+#' out$cld
+#' #>   GROUP  N       AVG        SD      MED      MIN       MAX CLD
+#' #> 1     A 10  8.158643 0.9367031 8.307891 6.997246  9.914337
+#' #> 2     B 10  9.373729 1.1764663 9.641060 6.663830 10.762959   *
+#' #> 3     C 10  8.326225 1.2422899 8.511984 5.913843  9.694671  ns
+#' #> 4     D 10 10.126767 0.8489929 9.940613 8.554087 11.426614 ***
+#' #> 5     E 10  7.156940 0.6970463 7.147558 6.172231  8.030896  ns
 Dunnett_test <- function(
         data,
         formula,
@@ -149,17 +187,8 @@ Dunnett_test <- function(
             stats::rnorm(10, 7, 1.17))
     )
 
-    control <- subset(df0, fertilizer == "A")$y
-    treatment <- subset(df0, fertilizer != "A")
-    treatment <- dataframe_to_list(
-        data = treatment,
-        formula = yield ~ fertilizer
-    )
-
     out <- Dunnett_test(df0, yield ~ fertilizer, control = "A")
-    out$post_hoc
-    DescTools::DunnettTest(yield ~ fertilizer, df0, control = "A")
-
+    out$cld
 }
 
 

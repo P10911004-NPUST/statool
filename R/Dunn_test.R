@@ -7,10 +7,10 @@
 #' @param alpha Numeric value range from 0 to 1 (Default: 0.05).
 #' @param p_adjust_method p-value adjustment method (Default: "holm"). See `stats::p.adjust.methods`.
 #'
-#' @return A list with four vectors. \
+#' @return A list with four vectors.
 #' 1. tests: A message showing the statistical methods applied on the dataset.
-#' 2. pre_hoc: The report of the omnibus test.
-#' 3. post_hoc: A dataframe reporting the post-hoc result.
+#' 2. pre_hoc: The result of pmnibus test.
+#' 3. post_hoc: includes statistics parameters for each pairwise comparisons.
 #' 4. cld: A dataframe reporting the descriptive stats and compact letter display.
 #'
 #' @export
