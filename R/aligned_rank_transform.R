@@ -29,13 +29,12 @@
 #' set.seed(1)
 #' df0 <- data.frame(
 #'     group = as.factor(rep(c("A", "B", "C"), each = 10)),
-#'     skew_data1 = c(rlnorm(10, -1, 2), sqrt(rcauchy(10, 3, 2) ^ 2), rlnorm(10, 0, 1.5)),
-#'     skew_data2 = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+#'     skew_data = c(rlnorm(10, -1, 2), sqrt(rcauchy(10, 3, 2) ^ 2), rlnorm(10, 0, 1.5))
 #' )
-#' out <- art_1(df0, skew_data1 ~ group)
+#' out <- art_1(df0, skew_data ~ group)
 #' print(out$pre_hoc)
 #' #> Anova Table (Type 3)
-#' #> art(skew_data1) ~ group
+#' #> art(skew_data) ~ group
 #' #>             Sum Sq Df F value    Pr(>F)
 #' #> (Intercept)  883.6  1  16.002 0.0004423 ***
 #' #> x            756.6  2   6.851 0.0039229 **
@@ -84,7 +83,7 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
     ## Post-hoc ====
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     if (!is_normality(df0, ranked_Y ~ x))  # is_normality() <<< normality.R
-        warning("Aligned rank transform may be appropriate for this dataset")
+        warning("rank(Y) doesn't follow normal distribution. ART may not appropriate for this dataset")
 
     is_balanced <- length(unique(table(df0$x))) == 1
     if (is_balanced) {

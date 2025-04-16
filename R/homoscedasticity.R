@@ -79,17 +79,19 @@ barlett_test <- function(data, formula){
 #'
 #' @param data data frame
 #' @param formula formula
-#' @param method options are: "trim_mean" (default), "mean", "median"
+#' @param method Available options are: "median" (default), "mean", and "trim_mean".
 #'
 #' @return returns a list containing three elements:
 #' 1. is_var_equal
 #' 2. statistic
 #' 3. pval
+#'
 #' @export
+#'
 #' @author Joon-Keat Lai
 #'
 #' @import datasets
-#' @importFrom utils data
+#' @import utils
 #'
 #' @examples
 #' utils::data("iris", package = "datasets")
@@ -125,6 +127,7 @@ levene_test <- function(data, formula, method = "median")
     df0 <- stats::model.frame(formula = formula, data = data)
     colnames(df0) <- c("y", "x")
 
+    # xbar could be median, mean, or trimmed mean
     xbar <- stats::aggregate(x = df0$y, by = list(df0$x), FUN = get(method))
     colnames(xbar) <- c("x", "xbar")
 
@@ -143,7 +146,7 @@ levene_test <- function(data, formula, method = "median")
 
     ret <- list(
         "is_var_equal" = is_var_equal,
-        "statistic" = aov_mod,
+        "statistics" = aov_mod,
         "pval" = pval
     )
 

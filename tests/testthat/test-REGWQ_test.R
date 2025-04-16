@@ -1,5 +1,5 @@
 testthat::test_that(
-    desc = "Check group names order and CLD",
+    desc = "REGWQ test for normal distributed, balance designed, and homoscedastic data.",
     code = {
         set.seed(1)
         group <- rep(c("A", "B", "C", "D", "E"), each = 10)

@@ -11,7 +11,7 @@ levene_test(data, formula, method = "median")
 
 \item{formula}{formula}
 
-\item{method}{options are: "trim_mean" (default), "mean", "median"}
+\item{method}{Available options are: "median" (default), "mean", and "trim_mean".}
 }
 \value{
 returns a list containing three elements:

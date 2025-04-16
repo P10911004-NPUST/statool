@@ -73,7 +73,7 @@ Dunn_test <- function(
 
     group_comparisons <- outer2(group_names, function(x1, x2) paste(x1, x2, sep = " |vs| "))
     group_n <- outer2(group_sizes, function(x1, x2) paste(x1, x2, sep = "|"))
-    group_diffs <- stats::setNames(outer2(group_means, "-"), group_comparisons) # outer2() <<< ./utils.R
+    group_diffs <- stats::setNames(outer2(group_means, "-"), group_comparisons) # outer2() <<< utils.R
 
     total_N <- sum(group_sizes)
 
@@ -101,8 +101,7 @@ Dunn_test <- function(
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Compact letter display ====
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    group_cld <- compact_letter_display(
-        # compact_letter_display() <<< ./compact_letter_display.R
+    group_cld <- compact_letter_display(  # <<< compact_letter_display.R
         groups = group_names,
         means = group_means,
         comparisons = group_comparisons,

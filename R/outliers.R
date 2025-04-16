@@ -68,10 +68,94 @@ is_outlier <- function(
 }
 
 
-Grubb_test <- function(x)
+
+#' Grubbs's test
+#'
+#' Description
+#'
+#' @import stats
+#' @param x A numeric vector (normal distribution) to test for an outlier.
+#' @param xs Which observation is suspected as an outlier.
+#' If this is specified, then one-tailed test is performed. If NULL, then performed two-tailed test.
+#' @param alpha Default: 0.05
+#'
+#' @return A list containing 3 vectors:
+#' 1. G: The statistic value for the test.
+#' 2. Gcrit: The threshold of the test to reject null hypothesis.
+#' 3. is_outlier: Boolean values indicating which one is the outlier (G > Gcrit).
+#' @export
+#'
+#' @examples
+#' set.seed(1)
+#' x <- c(round(rnorm(10), 2), 5)
+#' Grubbs_test(x)
+#' #> $G
+#' #> [1] 2.689996
+#' #>
+#' #> $Gcrit
+#' #> [1] 2.35473
+#' #>
+#' #> $is_outlier
+#' #> -0.63  0.18 -0.84   1.6  0.33 -0.82  0.49  0.74  0.58 -0.31     5
+#' #> FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
+Grubbs_test <- function(x, xs = NULL, alpha = 0.05)
 {
-    cat("Not yet")
+    x0 <- stats::na.omit(x)
+
+    N <- length(x0)
+    avg <- mean(x0)
+    std <- stats::sd(x0)
+
+    two_tail <- is.null(xs)
+    alpha <- ifelse(two_tail, alpha / (2 * N), alpha / N)
+
+    d <- ifelse(two_tail, abs(x0 - avg), abs(xs - avg))
+
+    if (two_tail) {
+        d <- abs(x0 - avg)
+        max_i <- which.max(d)
+        G <- d[max_i] / std
+    } else {
+        G <- abs(xs - avg) / std
+    }
+
+    t_crit <- stats::qt(
+        p = alpha,
+        df = N - 2,
+        lower.tail = FALSE
+    )
+
+    G_crit <- ( (N - 1) * t_crit ) / sqrt( N * (N - 2 + t_crit * t_crit) )
+
+    if (two_tail) {
+        is_outlier <- stats::setNames(logical(length(x0)), as.character(x0))
+        is_outlier[max_i] <- (G > G_crit)
+    } else {
+        is_outlier <- (G > G_crit)
+    }
+
+    x1 <- x0[ ! is_outlier ]
+    if ( ! is_normality(x1) )
+        warning("Not normally distributed. Grubbs's test may be NOT suitable for this data.")
+
+    ret <- list(
+        G = G,
+        # tcrit = t_crit,
+        Gcrit = G_crit,
+        is_outlier = is_outlier
+    )
+
+    return(ret)
+
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    # Testing ====
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    set.seed(1)
+    x <- c(round(rnorm(10), 2), 5)
+    Grubbs_test(x)
 }
+
+
 
 ROUT_test <- function(x)
 {

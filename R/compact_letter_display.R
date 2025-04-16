@@ -22,18 +22,20 @@
 #'
 #' @examples
 #' utils::data("iris", package = "datasets")
-#' stats_desc <- tapply(iris$Sepal.Length, iris$Species, "mean")
-#' stats_res <- stats::TukeyHSD(aov(Sepal.Length ~ Species, iris))
-#' stats_res <- as.data.frame(stats_res$Species)
-#' compact_letter_display(
-#'     groups = names(stats_desc),
-#'     means = stats_desc,
-#'     comparisons = row.names(stats_res),
-#'     pval = stats_res$`p adj`,
+#' avg <- tapply(iris$Sepal.Length, iris$Species, "mean")
+#' aov_mod <- stats::aov(Sepal.Length ~ Species, iris)
+#' res <- stats::TukeyHSD(aov_mod)
+#' res <- as.data.frame(res$Species)
+#' out <- compact_letter_display(
+#'     groups = names(avg),
+#'     means = avg,
+#'     comparisons = row.names(res),
+#'     pval = res$`p adj`,
 #'     comparison_symbol = "-"
 #' )
+#' print(out)
 #' #> setosa versicolor  virginica
-#' #>   "c"      "b"        "a"
+#' #>    "c"        "b"        "a"
 #' @references
 #' Piepho, H.P., 2004.
 #' An Algorithm for a Letter-Based Representation of All-Pairwise Comparisons.
@@ -159,10 +161,10 @@ compact_letter_display <- function(
     ## The matrix will be reduced to a named-vector
     ## after row-wise collapsing the letter-columns
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    res <- apply(letter_mat, 1, function(x) paste(x, collapse = ""))
-    res <- res[groups]
+    ret <- apply(letter_mat, 1, function(x) paste(x, collapse = ""))
+    ret <- ret[groups]
 
-    return(res)
+    return(ret)
 }
 
 

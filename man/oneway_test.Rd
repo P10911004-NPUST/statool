@@ -2,9 +2,7 @@
 % Please edit documentation in R/oneway_test.R
 \name{oneway_test}
 \alias{oneway_test}
-\title{One-way test
-Automatically performs one-way test with appropriate method, according to the data distribution
-and homoscedasticity.}
+\title{One-way test}
 \usage{
 oneway_test(
   data,
@@ -29,8 +27,7 @@ oneway_test(
 A list, contains omnibus test and post-hoc test results.
 }
 \description{
-One-way test
-Automatically performs one-way test with appropriate method, according to the data distribution
+Automatically performs one-way test with appropriate methods, according to the data distribution
 and homoscedasticity.
 }
 \examples{
