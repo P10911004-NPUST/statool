@@ -70,6 +70,17 @@ formula_term <- function(formula)
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # Data types ====
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+is_real_number <- function(x) {
+    vapply(
+        X = x,
+        FUN = function(xs) {
+            is.numeric(xs) & !is.infinite(xs) & !is.nan(xs) & !is.na(xs)
+        },
+        FUN.VALUE = logical(1)
+    )
+}
+
+
 #' Check if the character could be numeric
 #' Check if the character could be numeric
 #'

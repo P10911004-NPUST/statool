@@ -4,38 +4,40 @@
 \alias{Grubbs_test}
 \title{Grubbs's test}
 \usage{
-Grubbs_test(x, xs = NULL, alpha = 0.05)
+Grubbs_test(x, xs = NULL, alpha = 0.05, iteration = -1L, prob = 0.8)
 }
 \arguments{
 \item{x}{A numeric vector (normal distribution) to test for an outlier.}
 
 \item{xs}{Which observation is suspected as an outlier.
-If this is specified, then one-tailed test is performed. If NULL, then performed two-tailed test.}
+If this is specified, then one-tailed test is performed.
+If \code{NULL}, then performed two-tailed test.}
 
 \item{alpha}{Default: 0.05}
+
+\item{iteration}{An integer indicating the maximum number of outliers to be detected.
+Negative values search for all possible outliers (default).}
+
+\item{prob}{The maximum proportion of the outliers in the dataset. (Default: 0.8)}
 }
 \value{
-A list containing 3 vectors:
-\enumerate{
-\item G: The statistic value for the test.
-\item Gcrit: The threshold of the test to reject null hypothesis.
-\item is_outlier: Boolean values indicating which one is the outlier (G > Gcrit).
-}
+A boolean named vector showing the possible outliers.
 }
 \description{
 Description
 }
 \examples{
 set.seed(1)
-x <- c(round(rnorm(10), 2), 5)
+x <- c(round(rnorm(5), 3), -6, 5, 5, round(rnorm(5), 3))
 Grubbs_test(x)
-#> $G
-#> [1] 2.689996
-#>
-#> $Gcrit
-#> [1] 2.35473
-#>
-#> $is_outlier
-#> -0.63  0.18 -0.84   1.6  0.33 -0.82  0.49  0.74  0.58 -0.31     5
-#> FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
+#> -0.626  0.184 -0.836  1.595   0.33     -6      5      5  -0.82  0.487  0.738  0.576 -0.305
+#>  FALSE  FALSE  FALSE   TRUE  FALSE   TRUE   TRUE   TRUE  FALSE  FALSE  FALSE  FALSE  FALSE
+#> attr(,"iterations")
+#> [1] 3
+#> attr(,"suspect")
+#> [1] -6.000  5.000  5.000  1.595
+#> attr(,"G")
+#> [1] 3.999678 6.237262 2.609002
+#> attr(,"G_crit")
+#> [1] 2.462033 2.411560 2.289954
 }
