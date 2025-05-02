@@ -118,16 +118,20 @@ Grubbs_test <- function(
         detail = FALSE
 ){
     iteration <- ceiling(iteration)
-    if (iteration == 0) iteration <- -1L
+    # if (iteration == 0) iteration <- -1L
 
-    if (prob < 0 | prob > 1) stop("The value of `prob` should be within 0 - 1")
+    if (prob < 0 | prob > 1)
+        stop("The value of `prob` should be numeric and range from 0 to 1")
 
     if ( ! is.null(xs) )
         return(.GrubbsTest(x, xs, alpha))
 
-    keep_N <- ceiling(length(x) * (1 - prob))  # At least how many observations should be keep ?
+    # At least how many observations should be keep ?
+    keep_N <- ceiling(length(x) * (1 - prob))
 
-    is_outlier <- logical(length(x))  # A vector contains `FALSE`
+    # Assume all observations are NOT outlier at the beginning (all are FALSE)
+    is_outlier <- logical(length(x))
+
     suspect <- c()
     G <- c()
     G_crit <- c()
@@ -135,40 +139,69 @@ Grubbs_test <- function(
     x0 <- x
     i <- 0
 
-    if (iteration <= 0)
-    {
-        repeat {
-            x0 <- x0[ ! is_outlier ]
+    # if (iteration <= 0)
+    # {
+    #     repeat {
+    #         x0 <- x0[ ! is_outlier ]
+    #
+    #         out <- .GrubbsTest(x0, xs, alpha)
+    #         is_outlier <- c(unname(out))
+    #
+    #         if ( ! any(is_outlier) ) break
+    #         if ( length(x0) <= keep_N ) break
+    #
+    #         i <- i + 1
+    #         suspect <- append(suspect, x0[out])
+    #         G <- append(G, attr(out, "G"))
+    #         G_crit <- append(G_crit, attr(out, "G_crit"))
+    #     }
+    # }
 
-            out <- .GrubbsTest(x0, xs, alpha)
-            is_outlier <- c(unname(out))
+    while (iteration <= 0) {
+        x0 <- x0[ ! is_outlier ]
 
-            if ( ! any(is_outlier) ) break
-            if ( length(x0) <= keep_N ) break
+        out <- .GrubbsTest(x0, xs, alpha)
+        is_outlier <- c(unname(out))
 
-            i <- i + 1
-            suspect <- append(suspect, x0[out])
-            G <- append(G, attr(out, "G"))
-            G_crit <- append(G_crit, attr(out, "G_crit"))
-        }
+        if ( ! any(is_outlier) ) break
+        if ( length(x0) <= keep_N ) break
+
+        i <- i + 1
+        suspect <- append(suspect, x0[out])
+        G <- append(G, attr(out, "G"))
+        G_crit <- append(G_crit, attr(out, "G_crit"))
     }
 
 
-    if (iteration > 0)
-    {
-        while (i < iteration) {
-            x0 <- x0[ ! is_outlier ]
+    # if (iteration > 0)
+    # {
+    #     while (i < iteration) {
+    #         x0 <- x0[ ! is_outlier ]
+    #
+    #         out <- .GrubbsTest(x0, xs, alpha)
+    #
+    #         is_outlier <- c(unname(out))
+    #         if ( ! any(is_outlier) ) break
+    #
+    #         i <- i + 1
+    #         suspect <- append(suspect, x0[out])
+    #         G <- append(G, attr(out, "G"))
+    #         G_crit <- append(G_crit, attr(out, "G_crit"))
+    #     }
+    # }
 
-            out <- .GrubbsTest(x0, xs, alpha)
+    while (iteration > 0 & i <= iteration) {
+        x0 <- x0[ ! is_outlier ]
 
-            is_outlier <- c(unname(out))
-            if ( ! any(is_outlier) ) break
+        out <- .GrubbsTest(x0, xs, alpha)
 
-            i <- i + 1
-            suspect <- append(suspect, x0[out])
-            G <- append(G, attr(out, "G"))
-            G_crit <- append(G_crit, attr(out, "G_crit"))
-        }
+        is_outlier <- c(unname(out))
+        if ( ! any(is_outlier) ) break
+
+        i <- i + 1
+        suspect <- append(suspect, x0[out])
+        G <- append(G, attr(out, "G"))
+        G_crit <- append(G_crit, attr(out, "G_crit"))
     }
 
     ret <- x %in% suspect
