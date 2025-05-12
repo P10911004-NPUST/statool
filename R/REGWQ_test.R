@@ -138,12 +138,30 @@ REGWQ_test <- function(
     out_group_qvals <- c()
     out_group_q_crits <- c()
 
-    .calc_pvals <- function(x1, x2){
+    .calc_pvals <- function(x1, x2){  # x1, x2 are group names
         x1_mean <- group_means[x1]
         x2_mean <- group_means[x2]
 
-        x1_index <- sapply(x1, function(x) grep(x, group_names))
-        x2_index <- sapply(x2, function(x) grep(x, group_names))
+        x1_index <- vapply(
+            X = x1,
+            FUN = function(x) {
+                x <- paste0("^", x, "$")  # exact match
+                grep(x, group_names)
+            },
+            FUN.VALUE = numeric(1)
+        )
+
+        x2_index <- vapply(
+            X = x2,
+            FUN = function(x) {
+                x <- paste0("^", x, "$")
+                grep(x, group_names)
+            },
+            FUN.VALUE = numeric(1)
+        )
+
+        # x1_index <- grep(x1, group_names)[1]
+        # x2_index <- grep(x2, group_names)[1]
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         ## k_subset ====
