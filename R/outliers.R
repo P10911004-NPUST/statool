@@ -113,12 +113,18 @@ Grubbs_test <- function(
         x,
         xs = NULL,
         alpha = 0.05,
+        min_n = 7,
         iteration = -1L,
         prob = 0.2,
         detail = FALSE
 ){
+    if (length(x) < min_n)
+    {
+        warning("The number of observations less than min_n, Grubbs_test is not conducted.")
+        return(logical(length(x)))
+    }
+
     iteration <- ceiling(iteration)
-    # if (iteration == 0) iteration <- -1L
 
     if (prob < 0 | prob > 1)
         stop("The value of `prob` should be numeric and range from 0 to 1")
@@ -213,7 +219,8 @@ Grubbs_test <- function(
             iterations = i,
             suspect = suspect[ ! duplicated(suspect) ],
             G = G,
-            G_crit = G_crit
+            G_crit = G_crit,
+            package = "statool"
         )
     }
 
