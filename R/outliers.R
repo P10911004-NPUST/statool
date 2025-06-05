@@ -75,7 +75,7 @@ is_outlier <- function(
 #'
 #' @import stats
 #' @param x A numeric vector (normal distribution) to test for an outlier.
-#' @param xs Which observation is suspected as an outlier.
+#' @param x_suspect Which observation is suspected as an outlier.
 #' If this is specified, then one-tailed test is performed.
 #' If `NULL`, then performed two-tailed test.
 #' @param alpha Default: 0.05
@@ -111,14 +111,14 @@ is_outlier <- function(
 #' #> [1] 2.462033 2.411560
 Grubbs_test <- function(
         x,
-        xs = NULL,
+        x_suspect = NULL,
         alpha = 0.05,
         min_n = 7,
         iteration = -1L,
         prob = 0.2,
         detail = FALSE
 ){
-    if (length(x) < min_n)
+    if (!is.null(x_suspect) & length(x) < min_n)
     {
         warning("The number of observations less than min_n, Grubbs_test is not conducted.")
         return(logical(length(x)))
@@ -129,8 +129,8 @@ Grubbs_test <- function(
     if (prob < 0 | prob > 1)
         stop("The value of `prob` should be numeric and range from 0 to 1")
 
-    if ( ! is.null(xs) )
-        return(.GrubbsTest(x, xs, alpha))
+    if ( ! is.null(x_suspect) )
+        return(.GrubbsTest(x, x_suspect, alpha))
 
     # At least how many observations should be keep ?
     keep_N <- ceiling(length(x) * (1 - prob))
@@ -145,28 +145,10 @@ Grubbs_test <- function(
     x0 <- x
     i <- 0
 
-    # if (iteration <= 0)
-    # {
-    #     repeat {
-    #         x0 <- x0[ ! is_outlier ]
-    #
-    #         out <- .GrubbsTest(x0, xs, alpha)
-    #         is_outlier <- c(unname(out))
-    #
-    #         if ( ! any(is_outlier) ) break
-    #         if ( length(x0) <= keep_N ) break
-    #
-    #         i <- i + 1
-    #         suspect <- append(suspect, x0[out])
-    #         G <- append(G, attr(out, "G"))
-    #         G_crit <- append(G_crit, attr(out, "G_crit"))
-    #     }
-    # }
-
     while (iteration <= 0) {
         x0 <- x0[ ! is_outlier ]
 
-        out <- .GrubbsTest(x0, xs, alpha)
+        out <- .GrubbsTest(x0, x_suspect, alpha)
         is_outlier <- c(unname(out))
 
         if ( ! any(is_outlier) ) break
@@ -178,28 +160,10 @@ Grubbs_test <- function(
         G_crit <- append(G_crit, attr(out, "G_crit"))
     }
 
-
-    # if (iteration > 0)
-    # {
-    #     while (i < iteration) {
-    #         x0 <- x0[ ! is_outlier ]
-    #
-    #         out <- .GrubbsTest(x0, xs, alpha)
-    #
-    #         is_outlier <- c(unname(out))
-    #         if ( ! any(is_outlier) ) break
-    #
-    #         i <- i + 1
-    #         suspect <- append(suspect, x0[out])
-    #         G <- append(G, attr(out, "G"))
-    #         G_crit <- append(G_crit, attr(out, "G_crit"))
-    #     }
-    # }
-
     while (iteration > 0 & i <= iteration) {
         x0 <- x0[ ! is_outlier ]
 
-        out <- .GrubbsTest(x0, xs, alpha)
+        out <- .GrubbsTest(x0, x_suspect, alpha)
 
         is_outlier <- c(unname(out))
         if ( ! any(is_outlier) ) break
@@ -228,7 +192,7 @@ Grubbs_test <- function(
 }
 
 
-.GrubbsTest <- function(x, xs = NULL, alpha = 0.05)
+.GrubbsTest <- function(x, x_suspect = NULL, alpha = 0.05)
 {
     if ( ! all(is_real_number(x)) ) stop("`x` accepts only real numbers.")
     if ( length(x) < 8 ) warning("Valid observations should be more than 7.")
@@ -241,7 +205,7 @@ Grubbs_test <- function(
     avg <- mean(x0)
     dif <- abs(x0 - avg)
 
-    two_tail <- is.null(xs)
+    two_tail <- is.null(x_suspect)
 
     alpha <- ifelse(two_tail, alpha / (N + N), alpha / N)
 
@@ -255,19 +219,19 @@ Grubbs_test <- function(
         G <- abs(suspect[1] - trim_avg) / trim_std
     } else {
         ## One-tail
-        if ( ! is_real_number(xs) || length(xs) > 1 )
-            stop("`xs` accepts only one number.")
+        if ( ! is_real_number(x_suspect) || length(x_suspect) > 1 )
+            stop("`x_suspect` accepts only one number.")
 
-        if ( ! any(x0 == xs) )
-            stop(paste0(xs, " was not found in `x`"))
+        if ( ! any(x0 == x_suspect) )
+            stop(paste0(x_suspect, " was not found in `x`"))
 
-        suspect_i <- which(dif >= abs(xs - avg))
+        suspect_i <- which(dif >= abs(x_suspect - avg))
         suspect <- x0[suspect_i]
 
         trim_x <- setdiff(x0, suspect)
         trim_avg <- mean(trim_x)
         trim_std <- stats::sd(trim_x)
-        G <- abs(xs - trim_avg) / trim_std
+        G <- abs(x_suspect - trim_avg) / trim_std
     }
 
     t_crit <- stats::qt(
@@ -297,7 +261,7 @@ Grubbs_test <- function(
     set.seed(1)
     x <- c(round(rnorm(7, 0, 1), 3), -5, -4, 3, 5, round(rnorm(3, 0, 1), 3))
     .GrubbsTest(x)
-    .GrubbsTest(x, xs = 0.738)
+    .GrubbsTest(x, x_suspect = 0.738)
 }
 
 
