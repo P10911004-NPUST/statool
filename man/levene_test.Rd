@@ -22,7 +22,7 @@ returns a list containing three elements:
 }
 }
 \description{
-Computes Levene's test for homogeneity of variance across groups (homoscedasticity).
+Computes Levene's test for homogeneity of variance across groups.
 }
 \examples{
 utils::data("iris", package = "datasets")

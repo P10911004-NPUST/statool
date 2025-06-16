@@ -4,40 +4,61 @@
 \alias{Grubbs_test}
 \title{Grubbs's test}
 \usage{
-Grubbs_test(x, xs = NULL, alpha = 0.05, iteration = -1L, prob = 0.8)
+Grubbs_test(
+  x,
+  x_suspect = NULL,
+  alpha = 0.05,
+  min_n = 7,
+  iteration = -1L,
+  prob = 0.2,
+  detail = FALSE
+)
 }
 \arguments{
 \item{x}{A numeric vector (normal distribution) to test for an outlier.}
 
-\item{xs}{Which observation is suspected as an outlier.
+\item{x_suspect}{Which observation is suspected as an outlier.
 If this is specified, then one-tailed test is performed.
 If \code{NULL}, then performed two-tailed test.}
 
 \item{alpha}{Default: 0.05}
 
-\item{iteration}{An integer indicating the maximum number of outliers to be detected.
-Negative values search for all possible outliers (default).}
+\item{min_n}{Positive integer (default: 7). The minimum observations required for the test.}
 
-\item{prob}{The maximum proportion of the outliers in the dataset. (Default: 0.8)}
+\item{iteration}{An integer indicating the maximum number of outliers to be detected.
+Negative values and zero search for all possible outliers (Default: -1).}
+
+\item{prob}{The maximum proportion (ranged from 0 to 1) of the outliers in the dataset
+(Default: 0.2, which means the data contain no more than 20\% outliers data points).
+If too many outliers, simply discarding them using this approach could be irresponsible.}
+
+\item{detail}{Show as named-vector and the details of the process in the attributes. (Default: FALSE)}
 }
 \value{
-A boolean named vector showing the possible outliers.
+A boolean vector indicating the possible outliers.
+If \code{detail = TRUE}, the output is a named vector and consists of four attributes:
+\enumerate{
+\item \code{iterations}: the number of times the Grubbs test was automatically conducted.
+\item \code{suspect}: which number was considered as potential outliers.
+\item \code{G}: the statistic value (G value) for each classified outlier.
+\item \code{G_crit}: the critical G value for each classified outlier.
+}
 }
 \description{
 Description
 }
 \examples{
 set.seed(1)
-x <- c(round(rnorm(5), 3), -6, 5, 5, round(rnorm(5), 3))
-Grubbs_test(x)
-#> -0.626  0.184 -0.836  1.595   0.33     -6      5      5  -0.82  0.487  0.738  0.576 -0.305
-#>  FALSE  FALSE  FALSE   TRUE  FALSE   TRUE   TRUE   TRUE  FALSE  FALSE  FALSE  FALSE  FALSE
+x <- round(c(rnorm(10), -6, 5, 5), 3)
+Grubbs_test(x, detail = TRUE)
+#> 1.512   0.39 -0.621 -2.215  1.125 -0.045 -0.016  0.944  0.821  0.594     -6      5      5
+#> FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE   TRUE   TRUE   TRUE
 #> attr(,"iterations")
-#> [1] 3
+#> [1] 2
 #> attr(,"suspect")
-#> [1] -6.000  5.000  5.000  1.595
+#> [1] -6  5
 #> attr(,"G")
-#> [1] 3.999678 6.237262 2.609002
+#> [1] 3.999678 6.237262
 #> attr(,"G_crit")
-#> [1] 2.462033 2.411560 2.289954
+#> [1] 2.462033 2.411560
 }

@@ -50,7 +50,7 @@ Dunn_test <- function(
     colnames(df0) <- c("y", "x")
     df0 <- df0[ !is.na(df0$y), ]
 
-    if (is_normality(df0, y ~ x))  # is_normality() <<< ./normality.R
+    if (is_normality(df0, y ~ x))  # from "./normality.R"
         warning("The response variable follows a normal distribution.")
 
     n_fct_lvl <- length(unique(df0$x))
@@ -64,20 +64,24 @@ Dunn_test <- function(
 
     df0$ranked_y <- rank(df0$y)
 
-    desc_mat <- summarize(df0, ranked_y ~ x)  # summarize() <<< utils.R
+    desc_mat <- summarize(df0, ranked_y ~ x)  # from "./utils.R"
     desc_mat <- desc_mat[order(desc_mat[, "mean"], decreasing = TRUE), ]
 
     group_means <- desc_mat[, "mean"]
     group_sizes <- desc_mat[, "length"]
     group_names <- names(group_means)
 
-    group_comparisons <- outer2(group_names, function(x1, x2) paste(x1, x2, sep = " |vs| "))
+    group_comparisons <- outer2(   # from "utils.R"
+        group_names,
+        function(x1, x2) paste(x1, x2, sep = " |vs| ")
+    )
     group_n <- outer2(group_sizes, function(x1, x2) paste(x1, x2, sep = "|"))
-    group_diffs <- stats::setNames(outer2(group_means, "-"), group_comparisons) # outer2() <<< utils.R
+    group_diffs <- stats::setNames(outer2(group_means, "-"), group_comparisons)
 
     total_N <- sum(group_sizes)
 
-    .ties_correction <- function(x){
+    .ties_correction <- function(x)
+    {
         ties_num <- table(x)
         res <- sum( ties_num ^ 3 - ties_num ) / ( 12 * (total_N - 1) )
         return(res)
@@ -101,7 +105,7 @@ Dunn_test <- function(
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Compact letter display ====
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    group_cld <- compact_letter_display(  # <<< compact_letter_display.R
+    group_cld <- compact_letter_display(  # from "./compact_letter_display.R"
         groups = group_names,
         means = group_means,
         comparisons = group_comparisons,
@@ -113,7 +117,7 @@ Dunn_test <- function(
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## DO NOT use ranked data in the descriptive table (use `y` rather than `ranked_y`)
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    desc_mat2 <- summarize(df0, y ~ x)  # summarize() <<< utils.R
+    desc_mat2 <- summarize(df0, y ~ x)  # from "./utils.R"
     desc_mat2 <- desc_mat2[match(group_names, rownames(desc_mat2)), ]
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

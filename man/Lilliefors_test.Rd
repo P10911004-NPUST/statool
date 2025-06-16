@@ -52,7 +52,7 @@ An analytic approximation to the distribution of Lilliefors' test for normality.
 The American Statistician. 40:294-296.
 }
 \seealso{
-\code{\link[nortest:lillie.test]{nortest::lillie.test()}}
+nortest::lillie.test()
 }
 \author{
 Joon-Keat Lai

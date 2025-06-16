@@ -60,7 +60,7 @@ Goodness-of-Fit Techniques.
 https://doi.org/10.1201/9780203753064
 }
 \seealso{
-\code{\link[nortest:ad.test]{nortest::ad.test()}}
+nortest::ad.test()
 }
 \author{
 Joon-Keat Lai

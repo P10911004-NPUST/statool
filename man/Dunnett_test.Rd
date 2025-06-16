@@ -2,7 +2,7 @@
 % Please edit documentation in R/Dunnett_test.R
 \name{Dunnett_test}
 \alias{Dunnett_test}
-\title{Title}
+\title{Dunnett's test}
 \usage{
 Dunnett_test(
   data,
@@ -42,7 +42,8 @@ A list with four vectors.
 }
 }
 \description{
-Title
+Comparing multiple groups with a fixed control group. This could be more sensitive
+to show significance than the pairwise comparison approaches.
 }
 \examples{
 set.seed(1)

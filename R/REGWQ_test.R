@@ -80,8 +80,7 @@ REGWQ_test <- function(
 
     if ( is_unbalance(df0, y ~ x) )
     {
-        # levene_test() <<< ./homoscedasticity.R
-        var_equal <- levene_test(df0, y ~ x)[["is_var_equal"]]
+        var_equal <- levene_test(df0, y ~ x)[["is_var_equal"]] # from "./homoscedasticity.R"
         if ( var_equal )
             warning("Unbalanced. Please consider Tukey-Kramer test.")
         if ( ! var_equal )
@@ -138,7 +137,8 @@ REGWQ_test <- function(
     out_group_qvals <- c()
     out_group_q_crits <- c()
 
-    .calc_pvals <- function(x1, x2){  # x1, x2 are group names
+    .calc_pvals <- function(x1, x2)
+    {  # x1, x2 are group names
         x1_mean <- group_means[x1]
         x2_mean <- group_means[x2]
 
@@ -169,11 +169,9 @@ REGWQ_test <- function(
         k_subset <- x2_index - x1_index + 1
 
         ### Output k_subset matrix to the outside environment of this function
-        if (TRUE){
-            out_k_subset <- matrix(k_subset, nrow = k)
-            rownames(out_k_subset) <- colnames(out_k_subset) <- group_names
-            out_k_subset <<- out_k_subset[upper.tri(out_k_subset)]
-        }
+        out_k_subset <- matrix(k_subset, nrow = k)
+        rownames(out_k_subset) <- colnames(out_k_subset) <- group_names
+        out_k_subset <<- out_k_subset[upper.tri(out_k_subset)]
 
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -190,11 +188,9 @@ REGWQ_test <- function(
         modified_alpha <- sapply(k_subset, .modify_alpha)
 
         ### Output alpha matrix to the outside environment of this function
-        if (TRUE) {
-            out_modified_alpha <-  matrix(modified_alpha, nrow = k)
-            rownames(out_modified_alpha) <- colnames(out_modified_alpha) <- group_names
-            out_modified_alpha <<- out_modified_alpha[upper.tri(out_modified_alpha)]
-        }
+        out_modified_alpha <-  matrix(modified_alpha, nrow = k)
+        rownames(out_modified_alpha) <- colnames(out_modified_alpha) <- group_names
+        out_modified_alpha <<- out_modified_alpha[upper.tri(out_modified_alpha)]
 
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -203,11 +199,9 @@ REGWQ_test <- function(
         group_qvals <- abs(x1_mean - x2_mean) / sqrt( MSE / mean(group_sizes) )
 
         ### Output alpha matrix to the outside environment of this function
-        if (TRUE){
-            out_group_qvals <-  matrix(group_qvals, nrow = k)
-            rownames(out_group_qvals) <- colnames(out_group_qvals) <- group_names
-            out_group_qvals <<- out_group_qvals[upper.tri(out_group_qvals)]
-        }
+        out_group_qvals <-  matrix(group_qvals, nrow = k)
+        rownames(out_group_qvals) <- colnames(out_group_qvals) <- group_names
+        out_group_qvals <<- out_group_qvals[upper.tri(out_group_qvals)]
 
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -223,11 +217,9 @@ REGWQ_test <- function(
         )
 
         ### Output q_crit matrix to the outside environment of this function
-        if (TRUE){
-            out_group_q_crits <-  matrix(group_q_crits, nrow = k)
-            rownames(out_group_q_crits) <- colnames(out_group_q_crits) <- group_names
-            out_group_q_crits <<- out_group_q_crits[upper.tri(out_group_q_crits)]
-        }
+        out_group_q_crits <-  matrix(group_q_crits, nrow = k)
+        rownames(out_group_q_crits) <- colnames(out_group_q_crits) <- group_names
+        out_group_q_crits <<- out_group_q_crits[upper.tri(out_group_q_crits)]
 
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

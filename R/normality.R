@@ -71,7 +71,8 @@ is_normality <- function(data, formula, alpha = 0.05)
 #' x <- stats::rnorm(10, 10)
 #' skewness(x)
 #' #> 0.3512426
-skewness <- function(x, .population = FALSE) {
+skewness <- function(x, .population = FALSE)
+{
     if ( !is_vector(x) || !is.numeric(x) ) stop("x should be a numeric vector")
 
     x <- x[stats::complete.cases(x)]
@@ -110,7 +111,8 @@ skewness <- function(x, .population = FALSE) {
 #' x <- stats::rnorm(10, 10)
 #' kurtosis(x)
 #' #> -0.3169031
-kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
+kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE)
+{
     if ( !is_vector(x) || !is.numeric(x) ) stop("x should be a numeric vector")
 
     x <- x[stats::complete.cases(x)]
@@ -143,7 +145,6 @@ kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Empirical Distribution Function (EDF) tests ====
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
 #' Anderson-Darling normality test
 #'
@@ -197,7 +198,7 @@ kurtosis <- function(x, excess_kurtosis = TRUE, .population = FALSE) {
 #' 1st ed. Routledge. pg. 127 (Table 4.9).
 #' https://doi.org/10.1201/9780203753064
 #'
-#' @seealso [nortest::ad.test()]
+#' @seealso nortest::ad.test()
 Anderson_Darling_test <- function(x) {
     if ( !is_vector(x) || !is.numeric(x) ) stop("x should be a numeric vector")
 
@@ -302,7 +303,7 @@ Anderson_Darling_test <- function(x) {
 #' Testing for  Normality.
 #' Marcel Dekker, New York.
 #'
-#' @seealso [nortest::cvm.test()]
+#' @seealso nortest::cvm.test()
 Cramer_von_Mises_test <- function(x) {
     x <- sort(x[stats::complete.cases(x)])
     N <- length(x)
@@ -399,7 +400,7 @@ Kolmogoro_Smirnov_test <- function(x) {
 #' An analytic approximation to the distribution of Lilliefors' test for normality.
 #' The American Statistician. 40:294-296.
 #'
-#' @seealso [nortest::lillie.test()]
+#' @seealso nortest::lillie.test()
 Lilliefors_test <- function(x) {
     x <- sort(x[stats::complete.cases(x)])
     n <- length(x)
@@ -526,7 +527,7 @@ Shapiro_Wilk_Royston_test <- function(x) {
 #' Testing for  Normality.
 #' Marcel Dekker, New York.
 #'
-#' @seealso [nortest::sf.test()]
+#' @seealso nortest::sf.test()
 Shapiro_Francia_test <- function(x) {
     x <- sort(x[stats::complete.cases(x)], decreasing = FALSE)
     N <- length(x)
@@ -687,7 +688,8 @@ D.Agostino_Pearson_test <- function(x) {
 #' Jarque, C.M. and Bera, A.K. 1980.
 #' Efficient tests for normality, homoscedasticity and serial independence of regression residuals.
 #' Economics letters, 6(3), 255-259.
-Jarque_Bera_test <- function(x) {
+Jarque_Bera_test <- function(x)
+{
     if ( !is_vector(x) || !is.numeric(x) ) stop("x should be a numeric vector")
 
     x <- x[stats::complete.cases(x)]

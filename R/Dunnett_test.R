@@ -1,4 +1,8 @@
-#' Title
+#' @title Dunnett's test
+#'
+#' @description
+#' Comparing multiple groups with a fixed control group. This could be more sensitive
+#' to show significance than the pairwise comparison approaches.
 #'
 #' @param data A data frame in which the variables specified in the formula will be found.
 #' @param formula A formula specifying the model.
@@ -103,7 +107,8 @@ Dunnett_test <- function(
     )
 
     # Calculate correlation matrix
-    .calculate_corr_mat <- function(i, j){
+    .calculate_corr_mat <- function(i, j)
+    {
         n0 <- 1 / group_sizes[control]
         ni <- 1 / group_sizes[i]
         nj <- 1 / group_sizes[j]

@@ -50,10 +50,10 @@ Games_Howell_test <- function(
     n_fct_lvl <- length(unique(df0$x))
     if (n_fct_lvl < 3) stop("Factor levels should be more than 2.")
 
-    # is_normality(), is_unbalance() <<< ./utils.R
-    if ( ! is_normality(df0, y ~ x) ) warning("Data is not normal distribution.")
-    # levene_test() <<< ./homoscedasticity.R
-    if ( levene_test(df0, y ~ x)[["is_var_equal"]] )
+    if ( ! is_normality(df0, y ~ x) )  # from "./utils.R"
+        warning("Data is not normal distribution.")
+
+    if ( levene_test(df0, y ~ x)[["is_var_equal"]] ) # from "./homoscedasticity.R"
         warning("Variations between groups are similar. Please consider Tukey test.")
 
     # Pre-hoc ====
@@ -61,7 +61,7 @@ Games_Howell_test <- function(
     pre_hoc_pass <- pre_hoc$p.value < alpha
 
     # Descriptive ====
-    desc_mat <- summarize(df0, y ~ x)  # summarize() <<< utils.R
+    desc_mat <- summarize(df0, y ~ x)  # from "./utils.R"
     desc_mat <- desc_mat[order(desc_mat[, "mean"], decreasing = TRUE), ]
 
     group_means <- desc_mat[, "mean"]
@@ -93,10 +93,11 @@ Games_Howell_test <- function(
         group_SE <- sqrt( (var1 / n1 + var2 / n2) / 2 )
         return(group_SE)
     }
-    group_SE <- outer2(group_names, .calc_group_SE)
+    group_SE <- outer2(group_names, .calc_group_SE)  # from "utils.R"
 
     # Pooled degree of freedom ====
-    .calc_pooled_df <- function(x1, x2){
+    .calc_pooled_df <- function(x1, x2)
+    {
         var1 <- group_vars[x1]
         var2 <- group_vars[x2]
         n1 <- group_sizes[x1]
@@ -106,7 +107,7 @@ Games_Howell_test <- function(
         pooled_df <- numerator / denominator
         return(pooled_df)
     }
-    group_pooled_df <- outer2(group_names, .calc_pooled_df)
+    group_pooled_df <- outer2(group_names, .calc_pooled_df)  # from "utils.R"
 
     # q-values (Studendized range) ====
     group_qvals <- abs(group_diff / group_SE)

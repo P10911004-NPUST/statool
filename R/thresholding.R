@@ -1,7 +1,8 @@
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ## Otsu threshold
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-otsu_threshold <- function(x) {
+otsu_threshold <- function(x)
+{
     raw_x <- stats::na.omit(x)
     x_sd <- 3 * stats::sd(raw_x)
     raw_x <- raw_x[ (raw_x < (raw_x + x_sd)) & (raw_x > (raw_x - x_sd)) ]

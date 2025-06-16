@@ -50,7 +50,7 @@
 
 art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
 {
-    df0 <- stats::model.frame(formula, data)
+    df0 <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
     y_name <- colnames(df0)[1]
     x_name <- colnames(df0)[2]
 
@@ -77,16 +77,27 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
 
     aov_mod <- stats::aov(ranked_Y ~ x, df0)
     pre_hoc <- car::Anova(aov_mod, type = 3)
-    attr(pre_hoc, "heading") <- sprintf("Anova Table (Type 3)\nart(%s) ~ %s", y_name, x_name)
+
+    attr(pre_hoc, "heading") <- sprintf(
+        "Anova Table (Type 3)\nart(%s) ~ %s",
+        y_name, x_name
+    )
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Post-hoc ====
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     if (!is_normality(df0, ranked_Y ~ x))  # is_normality() <<< normality.R
-        warning("rank(Y) doesn't follow normal distribution. ART may not appropriate for this dataset")
+    {
+        # Sometimes, after rank transformed, the response variable
+        #   still doesn't met normality assumption. Improvement is
+        #   required for this kind of data.
+        warning(paste0("rank(Y) doesn't follow normal distribution.",
+                       "ART may not appropriate for this dataset"))
+    }
 
     is_balanced <- length(unique(table(df0$x))) == 1
-    if (is_balanced) {
+    if (is_balanced)
+    {
         tests <- "ART + Tukey-HSD on ART-response"
         tukey <- Tukey_HSD_test(df0, ranked_Y ~ x, alpha)
     } else {
@@ -95,9 +106,10 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
     }
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    ## DO NOT use ranked data in the descriptive table (use `y` rather than `ranked_y`)
+    ## DO NOT use ranked data in the descriptive table
+    ##   (use `y` rather than `ranked_y`)
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    desc_mat <- summarize(df0, y ~ x)
+    desc_mat <- summarize(df0, y ~ x)  # from ./utils.R
     desc_mat <- desc_mat[match(tukey$cld$GROUP, rownames(desc_mat)), ]
 
     tukey$cld <- data.frame(

@@ -65,7 +65,7 @@ Testing for  Normality.
 Marcel Dekker, New York.
 }
 \seealso{
-\code{\link[nortest:cvm.test]{nortest::cvm.test()}}
+nortest::cvm.test()
 }
 \author{
 Joon-Keat Lai

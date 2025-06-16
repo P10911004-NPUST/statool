@@ -11,71 +11,30 @@
 ## O'Brien's test
 
 
-F_test <- function(data, formula){
-    cat("Not yet")
-}
-
-
-#' Barlett's test
+#' Homoscedasticity
 #'
-#' This is a wrapper for the `stats::bartlett.test()` function.
-#' Computes Barlett's test for homogeneity of variance across groups (homoscedasticity).
+#' @description
+#' Test if the variances among groups are equal.
 #'
 #' @param data data frame
 #' @param formula formula
+#' @param method Available options are: "median" (default), "mean", and "trim_mean".
 #'
-#' @return returns a list containing three elements:
-#' 1. is_var_equal
-#' 2. statistic
-#' 3. pval
+#' @returns Logical value
 #' @export
-#' @author Joon-Keat Lai
-#'
-#' @import datasets
-#' @importFrom utils data
 #'
 #' @examples
 #' utils::data("iris", package = "datasets")
-#' barlett_test(iris, Petal.Length ~ Species)
-#' #> $is_var_equal
+#' is_var_equal(iris, Petal.Length ~ Species)
 #' #> [1] FALSE
-#' #>
-#' #> $statistic
-#' #> Bartlett's K-squared
-#' #>              55.4225
-#' #>
-#' #> $pval
-#' #> [1] 2.005419e-08
-#'
-#' @seealso [stats::bartlett.test()]
-barlett_test <- function(data, formula){
-    if (!is.data.frame(data)) stop("`data` should be a dataframe")
-
-    df0 <- stats::model.frame(formula = formula, data = data)
-    colnames(df0) <- c("y", "x")
-
-    df0 <- df0[stats::complete.cases(df0$x), , drop = FALSE]
-
-    results <- stats::bartlett.test(formula = y ~ x, data = df0)
-
-    pval <- results$p.value
-    is_var_equal <- pval > 0.05
-    statistic <- results$statistic
-
-    ret <- list(
-        "is_var_equal" = is_var_equal,
-        "statistic" = statistic,
-        "pval" = pval
-    )
-
-    return(ret)
+is_var_equal <- function(data, formula, method = "median")
+{
+    method <- match.arg(method, c("median", "mean", "trim_mean"))
+    levene_test(data, formula, method)[["is_var_equal"]]
 }
 
-
-
-#' Levene's test
-#'
-#' Computes Levene's test for homogeneity of variance across groups (homoscedasticity).
+#' @title Levene's test
+#' @description Computes Levene's test for homogeneity of variance across groups.
 #'
 #' @param data data frame
 #' @param formula formula
@@ -154,6 +113,71 @@ levene_test <- function(data, formula, method = "median")
 }
 
 
+F_test <- function(data, formula)
+{
+    cat("Not yet")
+}
+
+
+#' Barlett's test
+#'
+#' This is a wrapper for the `stats::bartlett.test()` function.
+#' Computes Barlett's test for homogeneity of variance across groups (homoscedasticity).
+#'
+#' @param data data frame
+#' @param formula formula
+#'
+#' @return returns a list containing three elements:
+#' 1. is_var_equal
+#' 2. statistic
+#' 3. pval
+#' @export
+#' @author Joon-Keat Lai
+#'
+#' @import datasets
+#' @importFrom utils data
+#'
+#' @examples
+#' utils::data("iris", package = "datasets")
+#' barlett_test(iris, Petal.Length ~ Species)
+#' #> $is_var_equal
+#' #> [1] FALSE
+#' #>
+#' #> $statistic
+#' #> Bartlett's K-squared
+#' #>              55.4225
+#' #>
+#' #> $pval
+#' #> [1] 2.005419e-08
+#'
+#' @seealso [stats::bartlett.test()]
+barlett_test <- function(data, formula)
+{
+    if (!is.data.frame(data)) stop("`data` should be a dataframe")
+
+    df0 <- stats::model.frame(formula = formula, data = data)
+    colnames(df0) <- c("y", "x")
+
+    df0 <- df0[stats::complete.cases(df0$x), , drop = FALSE]
+
+    results <- stats::bartlett.test(formula = y ~ x, data = df0)
+
+    pval <- results$p.value
+    is_var_equal <- pval > 0.05
+    statistic <- results$statistic
+
+    ret <- list(
+        "is_var_equal" = is_var_equal,
+        "statistic" = statistic,
+        "pval" = pval
+    )
+
+    return(ret)
+}
+
+
+
+
 
 #' Fligner's test
 #'
@@ -187,7 +211,8 @@ levene_test <- function(data, formula, method = "median")
 #' #> [1] 2.90569e-08
 #'
 #' @seealso [stats::fligner.test()]
-fligner_test <- function(data, formula){
+fligner_test <- function(data, formula)
+{
     if (!is.data.frame(data)) stop("`data` should be a dataframe")
 
     df0 <- stats::model.frame(formula = formula, data = data)

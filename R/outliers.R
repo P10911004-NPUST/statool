@@ -79,6 +79,7 @@ is_outlier <- function(
 #' If this is specified, then one-tailed test is performed.
 #' If `NULL`, then performed two-tailed test.
 #' @param alpha Default: 0.05
+#' @param min_n Positive integer (default: 7). The minimum observations required for the test.
 #' @param iteration An integer indicating the maximum number of outliers to be detected.
 #' Negative values and zero search for all possible outliers (Default: -1).
 #' @param prob The maximum proportion (ranged from 0 to 1) of the outliers in the dataset
@@ -99,8 +100,8 @@ is_outlier <- function(
 #' set.seed(1)
 #' x <- round(c(rnorm(10), -6, 5, 5), 3)
 #' Grubbs_test(x, detail = TRUE)
-#' 1.512   0.39 -0.621 -2.215  1.125 -0.045 -0.016  0.944  0.821  0.594     -6      5      5
-#' FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE   TRUE   TRUE   TRUE
+#' #> 1.512   0.39 -0.621 -2.215  1.125 -0.045 -0.016  0.944  0.821  0.594     -6      5      5
+#' #> FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE  FALSE   TRUE   TRUE   TRUE
 #' #> attr(,"iterations")
 #' #> [1] 2
 #' #> attr(,"suspect")
@@ -118,7 +119,7 @@ Grubbs_test <- function(
         prob = 0.2,
         detail = FALSE
 ){
-    if (!is.null(x_suspect) & length(x) < min_n)
+    if (is.null(x_suspect) & length(x) < min_n)
     {
         warning("The number of observations less than min_n, Grubbs_test is not conducted.")
         return(logical(length(x)))
@@ -195,7 +196,7 @@ Grubbs_test <- function(
 .GrubbsTest <- function(x, x_suspect = NULL, alpha = 0.05)
 {
     if ( ! all(is_real_number(x)) ) stop("`x` accepts only real numbers.")
-    if ( length(x) < 8 ) warning("Valid observations should be more than 7.")
+    # if ( length(x) < 8 ) warning("Valid observations should be more than 7.")
 
     x0 <- x
 

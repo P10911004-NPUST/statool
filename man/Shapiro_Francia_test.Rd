@@ -57,7 +57,7 @@ Testing for  Normality.
 Marcel Dekker, New York.
 }
 \seealso{
-\code{\link[nortest:sf.test]{nortest::sf.test()}}
+nortest::sf.test()
 }
 \author{
 Joon-Keat Lai

@@ -73,13 +73,17 @@ Tukey_Kramer_test <- function(
     MSE <- sum(stats::residuals(aov_mod) ^ 2) / DFerror
 
     # Labels comparison ====
-    group_comparisons <- outer2(group_names, function(x1, x2) paste(x1, x2, sep = " |vs| "))
+    group_comparisons <- outer2(  # from "./utils.R"
+        group_names,
+        function(x1, x2) paste(x1, x2, sep = " |vs| ")
+    )
 
     # Differences of each comparison ====
     group_diff <- outer2(group_means, "-")
 
     # Standard error ====
-    .calc_group_SE <- function(x1, x2){
+    .calc_group_SE <- function(x1, x2)
+    {
         n1 <- group_sizes[x1]
         n2 <- group_sizes[x2]
         res <- sqrt( (MSE / 2) * ( 1 / n1 + 1 / n2 ) )
