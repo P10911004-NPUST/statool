@@ -10,7 +10,7 @@
 #' For Tukey-HSD, this option should always be "none", and the calculated padj is "Tukey-adjusted p-value".
 #' Other options: `stats::p.adjust.methods` (NOT recommended).
 #'
-#' @return A list with four vectors.
+#' @return A list with four elements:
 #' 1. tests: A message showing the statistical methods applied on the dataset.
 #' 2. pre_hoc: The result of pmnibus test.
 #' 3. post_hoc: includes statistics parameters for each pairwise comparisons.

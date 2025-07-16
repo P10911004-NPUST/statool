@@ -86,7 +86,7 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Post-hoc ====
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    if (!is_normality(df0, ranked_Y ~ x))  # is_normality() <<< normality.R
+    if (!is_normality(df0, ranked_Y ~ x))  # from ./normality.R
     {
         # Sometimes, after rank transformed, the response variable
         #   still doesn't met normality assumption. Improvement is

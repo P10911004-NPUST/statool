@@ -3,7 +3,8 @@
 # For grouped data ====
 ## F-test
 ## Barlett's test
-## Levene's test (including Brown-Forsythe test, when using median or trimmed-mean)
+## Levene's test
+## Brown-Forsythe test (similar with Levene's test, but using median)
 ## Fligner-Killeen test
 ## Cochran's C test
 ## Conover's test

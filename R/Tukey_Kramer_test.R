@@ -7,7 +7,7 @@
 #' @param alpha Numeric value range from 0 to 1 (default: 0.05). The error tolerance.
 #' @param p_adjust_method A character string (default: "none"). Other options: `stats::p.adjust.methods`.
 #'
-#' @return A list with four vectors.
+#' @return A list with four elements:
 #' 1. tests: A message showing the statistical methods applied on the dataset.
 #' 2. pre_hoc: The result of pmnibus test.
 #' 3. post_hoc: includes statistics parameters for each pairwise comparisons.
