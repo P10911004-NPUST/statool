@@ -18,7 +18,7 @@ For Tukey-HSD, this option should always be "none", and the calculated padj is "
 Other options: \code{stats::p.adjust.methods} (NOT recommended).}
 }
 \value{
-A list with four vectors.
+A list with four elements:
 \enumerate{
 \item tests: A message showing the statistical methods applied on the dataset.
 \item pre_hoc: The result of pmnibus test.

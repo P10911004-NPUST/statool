@@ -1,3 +1,37 @@
+aligned_rank_transform <- function(data, formula)
+{
+    df0 <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
+    y_name <- colnames(df0)[1]
+    x_name <- colnames(df0)[2]
+
+    colnames(df0) <- c("y", "x")
+    df0 <- df0[!is.na(df0$y), ]
+
+    aov_mod <- stats::aov(y ~ x, df0)
+    df0["residual"] <- stats::residuals(aov_mod)
+
+    group_means <- with(df0, tapply(y, x, mean))
+    estimated_effect <- group_means - mean(df0$y)
+
+    ind <- match(df0[["x"]], names(estimated_effect))
+    df0["estimated_effect"] <- estimated_effect[ind]
+
+    # df0$estimated_effect <- vapply(
+    #     X = df0$x,
+    #     FUN = function(x) estimated_effect[match(x, names(estimated_effect))],
+    #     FUN.VALUE = numeric(1)
+    # )
+
+    df0["aligned_Y"] <- with(df0, residual + estimated_effect)  # aligned response
+    df0["ranked_Y"] <- rank(df0$aligned_Y, ties.method = "average")  # ranked response
+
+    colnames(df0)[colnames(df0) == "x"] <- x_name
+    colnames(df0)[colnames(df0) == "y"] <- y_name
+
+    return(df0)
+}
+
+
 #' One-way aligned rank transform ANOVA
 #'
 #' @param data A data frame.
@@ -47,7 +81,6 @@
 #' #> 1     B 10 4.547070 2.543874 4.2027752 0.87471697 8.349396   a
 #' #> 2     C 10 2.279905 1.429011 2.4855260 0.05058867 4.119593  ab
 #' #> 3     A 10 1.437723 2.687525 0.6211093 0.06916521 8.940233   b
-
 art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
 {
     df0 <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
@@ -60,20 +93,21 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Pre-hoc ====
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    aov_mod <- stats::aov(y ~ x, df0)
-    df0$residual <- stats::residuals(aov_mod)
-
-    group_means <- with(df0, tapply(y, x, mean))
-    estimated_effect <- group_means - mean(df0$y)
-
-    df0$estimated_effect <- vapply(
-        X = df0$x,
-        FUN = function(x) estimated_effect[match(x, names(estimated_effect))],
-        FUN.VALUE = numeric(1)
-    )
-
-    df0$aligned_Y <- with(df0, residual + estimated_effect)  # aligned response
-    df0$ranked_Y <- rank(df0$aligned_Y, ties.method = "average")  # ranked response
+    df0 <- aligned_rank_transform(df0, y ~ x)
+    # aov_mod <- stats::aov(y ~ x, df0)
+    # df0$residual <- stats::residuals(aov_mod)
+    #
+    # group_means <- with(df0, tapply(y, x, mean))
+    # estimated_effect <- group_means - mean(df0$y)
+    #
+    # df0$estimated_effect <- vapply(
+    #     X = df0$x,
+    #     FUN = function(x) estimated_effect[match(x, names(estimated_effect))],
+    #     FUN.VALUE = numeric(1)
+    # )
+    #
+    # df0$aligned_Y <- with(df0, residual + estimated_effect)  # aligned response
+    # df0$ranked_Y <- rank(df0$aligned_Y, ties.method = "average")  # ranked response
 
     aov_mod <- stats::aov(ranked_Y ~ x, df0)
     pre_hoc <- car::Anova(aov_mod, type = 3)
@@ -86,7 +120,7 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Post-hoc ====
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    if (!is_normality(df0, ranked_Y ~ x))  # from ./normality.R
+    if ( ! is_normality(df0, ranked_Y ~ x) )  # from ./normality.R
     {
         # Sometimes, after rank transformed, the response variable
         #   still doesn't met normality assumption. Improvement is
@@ -96,32 +130,55 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
     }
 
     is_balanced <- length(unique(table(df0$x))) == 1
-    if (is_balanced)
+    is_homo <- is_var_equal(df0, ranked_Y ~ x)
+
+    if ( ! is_homo )
     {
-        tests <- "ART + Tukey-HSD on ART-response"
-        tukey <- Tukey_HSD_test(df0, ranked_Y ~ x, alpha)
-    } else {
-        tests <- "ART + Tukey-Kramer on ART-response"
-        tukey <- Tukey_Kramer_test(df0, ranked_Y ~ x, alpha)
+        tests <- "ART + Games-Howell on ART-response"
+        post_hoc <- Games_Howell_test(df0, ranked_Y ~ x, alpha)
     }
+
+    if (is_homo)
+    {
+        if (is_balanced)
+        {
+            tests <- "ART + Tukey-HSD on ART-response"
+            post_hoc <- Tukey_HSD_test(df0, ranked_Y ~ x, alpha)
+        }
+
+        if ( ! is_balanced )
+        {
+            tests <- "ART + Tukey-Kramer on ART-response"
+            post_hoc <- Tukey_Kramer_test(df0, ranked_Y ~ x, alpha)
+        }
+    }
+
+    # if (is_balanced & is_homo)
+    # {
+    #     tests <- "ART + Tukey-HSD on ART-response"
+    #     tukey <- Tukey_HSD_test(df0, ranked_Y ~ x, alpha)
+    # } else {
+    #     tests <- "ART + Tukey-Kramer on ART-response"
+    #     tukey <- Tukey_Kramer_test(df0, ranked_Y ~ x, alpha)
+    # }
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## DO NOT use ranked data in the descriptive table
     ##   (use `y` rather than `ranked_y`)
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     desc_mat <- summarize(df0, y ~ x)  # from ./utils.R
-    desc_mat <- desc_mat[match(tukey$cld$GROUP, rownames(desc_mat)), ]
+    desc_mat <- desc_mat[match(post_hoc$cld$GROUP, rownames(desc_mat)), ]
 
-    tukey$cld <- data.frame(
+    post_hoc$cld <- data.frame(
         row.names = NULL,
-        GROUP = tukey$cld$GROUP,
-        N = tukey$cld$N,
+        GROUP = post_hoc$cld$GROUP,
+        N = post_hoc$cld$N,
         AVG = desc_mat[, "mean"],
         SD = desc_mat[, "sd"],
         MED = desc_mat[, "median"],
         MIN = desc_mat[, "min"],
         MAX = desc_mat[, "max"],
-        CLD = tukey$cld$CLD
+        CLD = post_hoc$cld$CLD
     )
 
     colnames(df0)[colnames(df0) == "y"] <- y_name
@@ -132,9 +189,9 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
     ret <- list(
         tests = tests,
         data = df0,
-        pre_hoc = tukey$pre_hoc,
-        post_hoc = tukey$post_hoc,
-        cld = tukey$cld
+        pre_hoc = post_hoc$pre_hoc,
+        post_hoc = post_hoc$post_hoc,
+        cld = post_hoc$cld
     )
 
     return(ret)
@@ -142,15 +199,15 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Test
     ##<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    set.seed(1)
-    df0 <- data.frame(
-        group = as.factor(rep(c("A", "B", "C"), each = 10)),
-        skew_data1 = c(rlnorm(10, -1, 2), sqrt(rcauchy(10, 3, 2) ^ 2), rlnorm(10, 0, 1.5)),
-        skew_data2 = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
-    )
-    out <- art_1(df0, skew_data1 ~ group)
-    print(out$pre_hoc)
-    print(out$cld)
+    # set.seed(1)
+    # df0 <- data.frame(
+    #     group = as.factor(rep(c("A", "B", "C"), each = 10)),
+    #     skew_data1 = c(rlnorm(10, -1, 2), sqrt(rcauchy(10, 3, 2) ^ 2), rlnorm(10, 0, 1.5)),
+    #     skew_data2 = c(sqrt(rnorm(10, -7.2, 2) ^ 2), runif(10), runif(10))
+    # )
+    # out <- art_1(df0, skew_data1 ~ group)
+    # print(out$pre_hoc)
+    # print(out$cld)
 }
 
 

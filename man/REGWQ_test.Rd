@@ -16,48 +16,24 @@ REGWQ_test(data, formula, alpha = 0.05, p_adjust_method = "none")
 \item{p_adjust_method}{A character string (default: "none"). Options please refer to \code{stats::p.adjust.methods}.}
 }
 \value{
-A list with two vectors. \
+A list with four elements:
 \enumerate{
-\item result: consists of descriptive statistics and compact letter display;
-\item comparisons: includes statistics parameters for each pairwise comparisons.
+\item tests: A message showing the statistical methods applied on the dataset.
+\item pre_hoc: The result of pmnibus test.
+\item post_hoc: includes statistics parameters for each pairwise comparisons.
+\item cld: A dataframe reporting the descriptive stats and compact letter display.
 }
 }
 \description{
 Represent significance statements resulting from all-pairwise comparisons.
 }
 \examples{
-rawdata <- data.frame(
-    m1 = c(51, 84, 50, 48, 79, 61, 53, 54),
-    m2 = c(82, 91, 92, 80, 52, 85, 73, 74),
-    m3 = c(79, 84, 74, 98, 63, 83, 85, 58),
-    m4 = c(85, 80, 65, 71, 67, 51, 63, 93),
-    m5 = c(37, 40, 61, 51, 76, 55, 60, 70)
-)
-
-rawdata <- stats::reshape(
-    data = rawdata,
-    direction = "long",
-    varying = colnames(rawdata),
-    v.names = "val",
-    times = colnames(rawdata),
-    timevar = "group"
-)
-
-stats_res <- REGWQ_test(rawdata, val ~ group)
-stats_res$result
-#>    GROUPS N    AVG       SD  MED MIN MAX CLD
-#> m2     m2 8 78.625 12.80555 81.0  52  92   a
-#> m3     m3 8 78.000 12.82854 81.0  58  98   a
-#> m4     m4 8 71.875 13.47418 69.0  51  93  ab
-#> m1     m1 8 60.000 13.87701 53.5  48  84   b
-#> m5     m5 8 56.250 13.51983 57.5  37  76   b
-
 set.seed(1)
 group <- rep(c("A", "B", "C", "D", "E"), each = 10)
 val <- c(rnorm(10, 1, 1.5), rnorm(10, 2, 1), rnorm(10, -4, 2), rnorm(10), rnorm(10))
 df0 <- data.frame(group = group, val = val)
 out <- REGWQ_test(df0, val ~ group)
-out$result
+out$cld
 #>   GROUP  N        AVG        SD         MED        MIN        MAX CLD
 #> 1     B 10  2.2488450 1.0695148  2.49187228 -0.2146999  3.5117812   a
 #> 2     A 10  1.1983042 1.1708789  1.38486332 -0.2534429  3.3929212  ab
