@@ -345,12 +345,50 @@ estimate_cld_pos <- function(x)
 }
 
 
+# #' Assign asterisks according to the p-value
+# #'
+# #' @param x A numeric vector which values are ranged from 0 to 1 (the p-values).
+# #' @param cutpoints Default: c(0, 0.001, 0.01, 0.05, 1).
+# #' @param symbols Default: c("***", "**", "*", "ns").
+# #' @param superscript Show the asterisks as superscript.
+# #'
+# #' @importFrom common supsc
+# #'
+# #' @return A vector of asterisks (`*`) or `ns` symbols
+# #' @export
+# #'
+# #' @author Joon-Keat Lai
+# #'
+# #' @examples
+# #' pvals <- c(0.1, 0.05, 0.001, 0.006, 0.00009, 0.5)
+# #' ret <- pval2asterisk(pvals)
+# #' ret
+# #' #> 0.1  0.05 0.001 0.006 9e-05   0.5
+# #' #>  ns     *   ***    **   ***    ns
+# pval2asterisk <- function(
+#         x,
+#         cutpoints   = c(0, 0.001, 0.01, 0.05, 1),
+#         symbols = c("\U002A\U002A\U002A", "\U002A\U002A", "\U002A", "ns"),
+#         superscript = FALSE
+# ){
+#     if (superscript){
+#         symbols <- vapply(
+#             X = symbols,
+#             FUN = common::supsc,
+#             FUN.VALUE = character(1)
+#         )
+#     }
+#
+#     ret <- stats::symnum(x, cutpoints = cutpoints, symbols = symbols)
+#     ret <- stats::setNames(as.character(ret), as.character(x))
+#     # attr(ret, "legend") <- NULL
+#
+#     return(ret)
+# }
+
 #' Assign asterisks according to the p-value
 #'
 #' @param x A numeric vector which values are ranged from 0 to 1 (the p-values).
-#' @param cutpoints Default: c(0, 0.001, 0.01, 0.05, 1).
-#' @param symbols Default: c("***", "**", "*", "ns").
-#' @param superscript Show the asterisks as superscript.
 #'
 #' @importFrom common supsc
 #'
@@ -365,32 +403,18 @@ estimate_cld_pos <- function(x)
 #' ret
 #' #> 0.1  0.05 0.001 0.006 9e-05   0.5
 #' #>  ns     *   ***    **   ***    ns
-pval2asterisk <- function(
+pval2asterisk <- function(x)
+{
+    vapply(
         x,
-        cutpoints   = c(0, 0.001, 0.01, 0.05, 1),
-        symbols = c("\U002A\U002A\U002A", "\U002A\U002A", "\U002A", "ns"),
-        superscript = FALSE
-){
-    if (superscript){
-        symbols <- vapply(
-            X = symbols,
-            FUN = common::supsc,
-            FUN.VALUE = character(1)
-        )
-    }
-
-    ret <- stats::symnum(x, cutpoints = cutpoints, symbols = symbols)
-    ret <- stats::setNames(ret, as.character(x))
-    attr(ret, "legend") <- NULL
-
-    return(ret)
-
-    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    # Testing
-    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    pvals <- c(0.1, 0.05, 0.001, 0.006, 0.00009, 0.5)
-    ret <- pval2asterisk(pvals)
-    ret
+        function(`_`)
+        {
+            if (`_` <= 0.001) return("\U273D\U273D\U273D")
+            if (`_` <= 0.01 & `_` > 0.001) return("\U273D\U273D")
+            if (`_` <= 0.05 & `_` > 0.01) return("\U273D")
+            if (`_` > 0.05) return("ns")
+        },
+        FUN.VALUE = character(1)
+    )
 }
-
 

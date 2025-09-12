@@ -4,12 +4,14 @@
 \alias{levene_test}
 \title{Levene's test}
 \usage{
-levene_test(data, formula, method = "median")
+levene_test(data, formula, alpha = 0.05, method = "median")
 }
 \arguments{
 \item{data}{data frame}
 
 \item{formula}{formula}
+
+\item{alpha}{(default: 0.05)}
 
 \item{method}{Available options are: "median" (default), "mean", and "trim_mean".}
 }

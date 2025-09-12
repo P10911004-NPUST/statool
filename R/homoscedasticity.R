@@ -19,6 +19,7 @@
 #'
 #' @param data data frame
 #' @param formula formula
+#' @param alpha (default: 0.05)
 #' @param method Available options are: "median" (default), "mean", and "trim_mean".
 #'
 #' @returns Logical value
@@ -28,10 +29,17 @@
 #' utils::data("iris", package = "datasets")
 #' is_var_equal(iris, Petal.Length ~ Species)
 #' #> [1] FALSE
-is_var_equal <- function(data, formula, method = "median")
+is_var_equal <- function(data, formula, alpha = 0.05, method = "median")
 {
-    method <- match.arg(method, c("median", "mean", "trim_mean"))
-    levene_test(data, formula, method)[["is_var_equal"]]
+    method <- match.arg(method, c("median", "mean", "trim_mean", "F"))
+
+    if (method == "F")
+    {
+        ret <- F_test(data, formula)
+        return(ret[["pval"]] > alpha)
+    }
+
+    levene_test(data, formula, alpha, method)[["is_var_equal"]]
 }
 
 #' @title Levene's test
@@ -39,6 +47,7 @@ is_var_equal <- function(data, formula, method = "median")
 #'
 #' @param data data frame
 #' @param formula formula
+#' @param alpha (default: 0.05)
 #' @param method Available options are: "median" (default), "mean", and "trim_mean".
 #'
 #' @return returns a list containing three elements:
@@ -78,7 +87,7 @@ is_var_equal <- function(data, formula, method = "median")
 #' \emph{An R Companion to Applied Regression},
 #' Third Edition, Sage.
 #' @seealso [car::leveneTest()]
-levene_test <- function(data, formula, method = "median")
+levene_test <- function(data, formula, alpha = 0.05, method = "median")
 {
     method <- match.arg(method, c("median", "mean", "trim_mean"))
 
@@ -102,7 +111,7 @@ levene_test <- function(data, formula, method = "median")
     )
 
     pval <- aov_mod$`Pr(>F)`[1]
-    is_var_equal <- pval > 0.05
+    is_var_equal <- pval > alpha
 
     ret <- list(
         "is_var_equal" = is_var_equal,
@@ -114,9 +123,58 @@ levene_test <- function(data, formula, method = "median")
 }
 
 
-F_test <- function(data, formula)
-{
-    cat("Not yet")
+F_test <- function(
+        data,
+        formula = NULL,
+        x = NULL,
+        y = NULL,
+        alternative = c("two.sided", "less", "greater"),
+        alpha = 0.05
+) {
+    alternative <- match.arg(alternative, c("two.sided", "less", "greater"))
+
+    if (is.null(formula))
+    {
+        if (inherits(x, "character"))
+            x <- data[[x]]
+
+        if (inherits(y, "character"))
+            y <- data[[y]]
+
+        fstats <- stats::var.test(
+            x = x,
+            y = y,
+            alternative = alternative,
+            conf.level = 1 - alpha
+        )
+
+    } else {
+        # df0 <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
+        # x_name <- colnames(df0)[2]
+        # y_name <- colnames(df0)[1]
+        # colnames(df0) <- c("y", "x")
+        # df0 <- df0[stats::complete.cases(df0[["y"]]), ]
+
+        fstats <- stats::var.test(
+            formula,
+            data,
+            alternative = alternative,
+            conf.level = 1 - alpha
+        )
+    }
+
+    fstats <- data.frame(
+        comparison = fstats[["data.name"]],
+        `F` = unname(fstats[["statistic"]]),
+        df_num = fstats[["parameter"]][["num df"]],
+        df_denom = fstats[["parameter"]][["denom df"]],
+        pval = fstats[["p.value"]],
+        conf_int_lower = fstats[["conf.int"]][1],
+        conf_int_upper = fstats[["conf.int"]][2],
+        var_ratio = unname(fstats[["estimate"]])
+    )
+
+    return(fstats)
 }
 
 

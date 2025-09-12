@@ -4,21 +4,10 @@
 \alias{pval2asterisk}
 \title{Assign asterisks according to the p-value}
 \usage{
-pval2asterisk(
-  x,
-  cutpoints = c(0, 0.001, 0.01, 0.05, 1),
-  symbols = c("***", "**", "*", "ns"),
-  superscript = FALSE
-)
+pval2asterisk(x)
 }
 \arguments{
 \item{x}{A numeric vector which values are ranged from 0 to 1 (the p-values).}
-
-\item{cutpoints}{Default: c(0, 0.001, 0.01, 0.05, 1).}
-
-\item{symbols}{Default: c("\emph{\strong{", "}", "}", "ns").}
-
-\item{superscript}{Show the asterisks as superscript.}
 }
 \value{
 A vector of asterisks (\code{*}) or \code{ns} symbols

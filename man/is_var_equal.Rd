@@ -4,12 +4,14 @@
 \alias{is_var_equal}
 \title{Homoscedasticity}
 \usage{
-is_var_equal(data, formula, method = "median")
+is_var_equal(data, formula, alpha = 0.05, method = "median")
 }
 \arguments{
 \item{data}{data frame}
 
 \item{formula}{formula}
+
+\item{alpha}{(default: 0.05)}
 
 \item{method}{Available options are: "median" (default), "mean", and "trim_mean".}
 }
