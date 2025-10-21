@@ -83,12 +83,16 @@ aligned_rank_transform <- function(data, formula)
 #' #> 3     A 10 1.437723 2.687525 0.6211093 0.06916521 8.940233   b
 art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
 {
+    original_contrasts <- unname(options("contrasts")[["contrasts"]])
+    options(contrasts = c("contr.sum", "contr.poly"))
+
     df0 <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
     y_name <- colnames(df0)[1]
     x_name <- colnames(df0)[2]
 
     colnames(df0) <- c("y", "x")
     df0 <- df0[!is.na(df0$y), ]
+    df0[["x"]] <- as.factor(as.character(df0[["x"]]))
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Pre-hoc ====
@@ -153,14 +157,6 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
         }
     }
 
-    # if (is_balanced & is_homo)
-    # {
-    #     tests <- "ART + Tukey-HSD on ART-response"
-    #     tukey <- Tukey_HSD_test(df0, ranked_Y ~ x, alpha)
-    # } else {
-    #     tests <- "ART + Tukey-Kramer on ART-response"
-    #     tukey <- Tukey_Kramer_test(df0, ranked_Y ~ x, alpha)
-    # }
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## DO NOT use ranked data in the descriptive table
@@ -193,6 +189,8 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
         post_hoc = post_hoc$post_hoc,
         cld = post_hoc$cld
     )
+
+    options(contrasts = original_contrasts)
 
     return(ret)
 
