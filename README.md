@@ -12,7 +12,7 @@ You can install the development version of `statool` from [GitHub](https://githu
 
 ``` r
 if (!require(devtools)) install.packages("devtools")
-devtools::install_github("P10911004-NPUST/statool", upgrade = "always", quiet = TRUE)
+devtools::install_github("P10911004-NPUST/statool")
 ```
 
 

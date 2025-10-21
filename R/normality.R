@@ -22,6 +22,7 @@ is_normality <- function(data, formula, alpha = 0.05)
         )
 
         df0 <- df0[!is.na(df0$y), , drop = FALSE]
+        df0[['x']] <- as.character(df0[["x"]])
 
         no_variation <- any(tapply(df0$y, df0$x, function(x) stats::sd(x) == 0))
         if (no_variation) {
