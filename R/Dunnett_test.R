@@ -55,6 +55,7 @@ Dunnett_test <- function(
     df0 <- stats::model.frame(formula, data)
     colnames(df0) <- c("y", "x")
     df0 <- df0[!is.na(df0$y), ]
+    df0[["x"]] <- as.character(df0[["x"]])
 
     desc_mat <- summarize(df0, y ~ x)
     if ( ! is.null(descending) )

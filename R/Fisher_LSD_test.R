@@ -31,6 +31,7 @@ Fisher_LSD_test <- function(
     df0 <- stats::model.frame(formula = formula, data = data, drop.unused.levels = TRUE)
     colnames(df0) <- c("y", "x")
     df0 <- df0[ !is.na(df0$y), ]
+    df0[["x"]] <- as.character(df0[["x"]])
 
     n_fct_lvl <- length(unique(df0$x))
     if (n_fct_lvl < 3) stop("Factor levels should be more than 2.")

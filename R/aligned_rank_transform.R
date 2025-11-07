@@ -6,6 +6,7 @@ aligned_rank_transform <- function(data, formula)
 
     colnames(df0) <- c("y", "x")
     df0 <- df0[!is.na(df0$y), ]
+    df0[["x"]] <- as.character(df0[["x"]])
 
     aov_mod <- stats::aov(y ~ x, df0)
     df0["residual"] <- stats::residuals(aov_mod)
@@ -92,7 +93,7 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
 
     colnames(df0) <- c("y", "x")
     df0 <- df0[!is.na(df0$y), ]
-    df0[["x"]] <- as.factor(as.character(df0[["x"]]))
+    df0[["x"]] <- as.character(df0[["x"]])
 
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     ## Pre-hoc ====
@@ -129,7 +130,7 @@ art_1 <- function(data, formula, alpha = 0.05, p_adjust_method = "none")
         # Sometimes, after rank transformed, the response variable
         #   still doesn't met normality assumption. Improvement is
         #   required for this kind of data.
-        warning(paste0("rank(Y) doesn't follow normal distribution.",
+        warning(paste0("The rank(Y) are not normally distributed.",
                        "ART may not appropriate for this dataset"))
     }
 

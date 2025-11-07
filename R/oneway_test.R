@@ -49,6 +49,7 @@ oneway_test <- function(
     # y <- colnames(df0)[1]
     # x <- colnames(df0)[2]
     colnames(df0) <- c("y", "x")
+    df0[["x"]] <- as.character(df0[["x"]])
 
     is_normal <- is_normality(df0, y ~ x)  # from "./utils.R"
     is_balance <- !is_unbalance(df0, y ~ x)  # from "./utils.R"

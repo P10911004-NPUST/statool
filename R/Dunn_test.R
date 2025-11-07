@@ -49,6 +49,7 @@ Dunn_test <- function(
     df0 <- stats::model.frame(formula = formula, data = data, drop.unused.levels = TRUE)
     colnames(df0) <- c("y", "x")
     df0 <- df0[ !is.na(df0$y), ]
+    df0[["x"]] <- as.character(df0[["x"]])
 
     if (is_normality(df0, y ~ x))  # from "./normality.R"
         warning("The response variable follows a normal distribution.")

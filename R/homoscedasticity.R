@@ -95,6 +95,7 @@ levene_test <- function(data, formula, alpha = 0.05, method = "median")
 
     df0 <- stats::model.frame(formula = formula, data = data)
     colnames(df0) <- c("y", "x")
+    df0[["x"]] <- as.character(df0[["x"]])
 
     # xbar could be median, mean, or trimmed mean
     xbar <- stats::aggregate(x = df0$y, by = list(df0$x), FUN = get(method))
